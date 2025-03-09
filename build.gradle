@@ -15,6 +15,7 @@ sourceCompatibility = '21'
 repositories {
     mavenCentral()
     mavenLocal()
+    maven { url 'https://jitpack.io' }
 }
 
 ext {
@@ -49,6 +50,9 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
     implementation 'io.projectreactor.kotlin:reactor-kotlin-extensions'
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-reactor'
+
+    // Common 라이브러리
+    implementation 'com.github.christopher3810:common_lib:v0.1.4'
 
     // 테스트 의존성
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
