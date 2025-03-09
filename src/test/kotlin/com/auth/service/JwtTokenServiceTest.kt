@@ -1,10 +1,12 @@
 package com.auth.service
 
-import com.auth.config.JwtConfig
-import com.auth.domain.token.builder.TokenBuilder
-import com.auth.domain.token.type.TokenClaim
-import com.auth.controller.dto.UserTokenInfo
+import com.auth.infrastructure.security.token.TokenProvider
+import com.auth.application.facade.JwtTokenService
+import com.auth.domain.auth.model.TokenClaim
+import com.auth.domain.auth.service.TokenBuilder
 import com.auth.exception.TokenException
+import com.auth.infrastructure.config.JwtConfig
+import com.auth.application.auth.dto.UserTokenInfo
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jwts
 import io.kotest.assertions.throwables.shouldThrow
@@ -15,7 +17,6 @@ import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import java.util.*
 
 class JwtTokenServiceTest : DescribeSpec({
 
@@ -84,20 +85,20 @@ class JwtTokenServiceTest : DescribeSpec({
 
             val sut = JwtTokenService(mockTokenProvider, testData.jwtConfig)
 
-            val tokenResponse by lazy { sut.generateTokens(testData.userInfo) }
+            val tokenDto by lazy { sut.generateTokens(testData.userInfo) }
 
             it("액세스 토큰과 리프레시 토큰을 모두 반환해야 한다") {
-                tokenResponse.accessToken shouldBe testData.sampleAccessToken
-                tokenResponse.refreshToken shouldBe testData.sampleRefreshToken
+                tokenDto.accessToken shouldBe testData.sampleAccessToken
+                tokenDto.refreshToken shouldBe testData.sampleRefreshToken
             }
 
             it("만료 시간을 초 단위로 변환하여 반환해야 한다") {
-                tokenResponse.expiresIn shouldBe testData.jwtConfig.expirationMs / 1000
+                tokenDto.expiresIn shouldBe testData.jwtConfig.expirationMs / 1000
             }
 
             it("사용자 ID와 역할 정보가 각 토큰에 포함되어야 한다") {
-                tokenResponse.accessToken shouldBe testData.sampleAccessToken
-                tokenResponse.refreshToken shouldBe testData.sampleRefreshToken
+                tokenDto.accessToken shouldBe testData.sampleAccessToken
+                tokenDto.refreshToken shouldBe testData.sampleRefreshToken
 
                 verify {
                     mockTokenProvider.createAuthorizationTokenBuilder(testData.email)
@@ -118,12 +119,12 @@ class JwtTokenServiceTest : DescribeSpec({
             every { mockTokenProvider.createAuthorizationTokenBuilder(testData.email) } returns mockAccessTokenBuilder
 
             val sut = JwtTokenService(mockTokenProvider, testData.jwtConfig)
-            val refreshedTokenResponse by lazy { sut.refreshToken(testData.sampleRefreshToken) }
+            val refreshedTokenDto by lazy { sut.refreshToken(testData.sampleRefreshToken) }
 
             it("새 액세스 토큰을 생성하고 기존 리프레시 토큰을 유지해야 한다") {
-                refreshedTokenResponse.accessToken shouldBe testData.sampleAccessToken
-                refreshedTokenResponse.refreshToken shouldBe testData.sampleRefreshToken
-                refreshedTokenResponse.expiresIn shouldBe testData.jwtConfig.expirationMs / 1000
+                refreshedTokenDto.accessToken shouldBe testData.sampleAccessToken
+                refreshedTokenDto.refreshToken shouldBe testData.sampleRefreshToken
+                refreshedTokenDto.expiresIn shouldBe testData.jwtConfig.expirationMs / 1000
 
                 verify {
                     mockTokenProvider.validateToken(testData.sampleRefreshToken)

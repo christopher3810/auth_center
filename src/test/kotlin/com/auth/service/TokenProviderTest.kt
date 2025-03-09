@@ -1,7 +1,8 @@
 package com.auth.service
 
-import com.auth.config.JwtConfig
-import com.auth.domain.token.type.TokenPurpose
+import com.auth.infrastructure.security.token.TokenProvider
+import com.auth.domain.auth.model.TokenPurpose
+import com.auth.infrastructure.config.JwtConfig
 import io.jsonwebtoken.ExpiredJwtException
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.security.Keys
@@ -10,7 +11,6 @@ import io.kotest.assertions.assertSoftly
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.IsolationMode
 import io.kotest.core.spec.style.DescribeSpec
-import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import java.time.Instant

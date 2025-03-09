@@ -1,8 +1,8 @@
 package com.auth.domain
 
-import com.auth.domain.token.builder.TokenBuilder
-import com.auth.domain.token.type.TokenClaim
-import com.auth.domain.token.type.TokenPurpose
+import com.auth.domain.auth.model.TokenClaim
+import com.auth.domain.auth.model.TokenPurpose
+import com.auth.domain.auth.service.TokenBuilder
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.security.Keys

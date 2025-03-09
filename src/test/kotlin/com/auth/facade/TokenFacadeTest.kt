@@ -1,7 +1,7 @@
 package com.auth.facade
 
 import com.auth.TokenFacade
-import com.auth.config.JwtConfig
+import com.auth.infrastructure.config.JwtConfig
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldNotBeEmpty

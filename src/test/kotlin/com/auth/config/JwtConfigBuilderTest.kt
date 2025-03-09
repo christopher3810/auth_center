@@ -1,5 +1,7 @@
 package com.auth.config
 
+import com.auth.infrastructure.config.JwtConfigBuilder
+import com.auth.infrastructure.config.StandardJwtStrategy
 import io.kotest.core.spec.IsolationMode
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
