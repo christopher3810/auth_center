@@ -1,19 +1,10 @@
-package com.auth.infrastructure.persistence.repository
+package com.auth.infrastructure.persistence.adaptor
 
 import com.auth.domain.user.model.User
 import com.auth.domain.user.repository.UserRepository
-import org.springframework.data.jpa.repository.JpaRepository
+import com.auth.infrastructure.repository.UserJpaRepository
 import org.springframework.stereotype.Repository
 import java.util.Optional
-
-/**
- * JPA 기반 UserRepository 구현체를 위한 인터페이스
- */
-@Repository
-interface UserJpaRepository : JpaRepository<User, Long> {
-    fun findByEmail(email: String): Optional<User>
-    fun existsByEmail(email: String): Boolean
-}
 
 /**
  * UserRepository 도메인 인터페이스의 구현체

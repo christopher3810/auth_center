@@ -1,37 +1,11 @@
-package com.auth.infrastructure.persistence.repository
+package com.auth.infrastructure.persistence.adaptor
 
 import com.auth.domain.auth.model.RefreshToken
 import com.auth.domain.auth.repository.RefreshTokenRepository
-import org.springframework.data.jpa.repository.JpaRepository
-import org.springframework.data.jpa.repository.Modifying
-import org.springframework.data.jpa.repository.Query
+import com.auth.infrastructure.repository.RefreshTokenJpaRepository
 import org.springframework.stereotype.Repository
 import java.time.LocalDateTime
 import java.util.Optional
-
-/**
- * JPA 기반 RefreshTokenRepository 구현체를 위한 인터페이스
- */
-@Repository
-interface RefreshTokenJpaRepository : JpaRepository<RefreshToken, Long> {
-    fun findByToken(token: String): Optional<RefreshToken>
-    
-    fun findByUserId(userId: Long): List<RefreshToken>
-    
-    @Query("SELECT r FROM RefreshToken r WHERE r.userId = :userId AND r.used = false AND r.revoked = false AND r.expiryDate > :currentTime")
-    fun findByUserIdAndUsedFalseAndRevokedFalseAndExpiryDateAfter(
-        userId: Long, 
-        currentTime: LocalDateTime
-    ): List<RefreshToken>
-    
-    @Modifying
-    @Query("UPDATE RefreshToken r SET r.revoked = true WHERE r.userId = :userId")
-    fun revokeAllUserTokens(userId: Long): Int
-    
-    @Modifying
-    @Query("DELETE FROM RefreshToken r WHERE r.expiryDate < :now")
-    fun deleteAllExpiredTokens(now: LocalDateTime): Int
-}
 
 /**
  * RefreshTokenRepository 도메인 인터페이스의 구현체
@@ -52,7 +26,7 @@ class RefreshTokenRepositoryImpl(
     }
     
     override fun findByUserIdAndValidTrue(userId: Long, currentTime: LocalDateTime): List<RefreshToken> {
-        return jpaRepository.findByUserIdAndUsedFalseAndRevokedFalseAndExpiryDateAfter(userId, currentTime)
+        return jpaRepository.findValidTokensByUserId(userId, currentTime)
     }
     
     override fun revokeAllUserTokens(userId: Long): Int {
