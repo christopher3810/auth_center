@@ -1,6 +1,8 @@
 package com.auth.domain.user.model
 
+import com.auth.infrastructure.audit.Traceable
 import jakarta.persistence.*
+import org.springframework.data.jpa.domain.support.AuditingEntityListener
 import java.time.LocalDateTime
 
 /**
@@ -9,6 +11,7 @@ import java.time.LocalDateTime
  */
 @Entity
 @Table(name = "users")
+@EntityListeners(AuditingEntityListener::class)
 class User(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,11 +34,8 @@ class User(
     @Column(nullable = false)
     var enabled: Boolean = true,
     
-    @Column(nullable = false)
-    val createdAt: LocalDateTime = LocalDateTime.now(),
-    
-    @Column(nullable = false)
-    var updatedAt: LocalDateTime = LocalDateTime.now()
+    @Embedded
+    val traceable: Traceable = Traceable()
 ) {
     /**
      * 사용자에게 역할 추가
@@ -64,6 +64,5 @@ class User(
     fun update(name: String? = null, password: String? = null) {
         name?.let { this.name = it }
         password?.let { this.password = it }
-        this.updatedAt = LocalDateTime.now()
     }
 } 

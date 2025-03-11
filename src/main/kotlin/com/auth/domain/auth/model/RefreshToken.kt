@@ -1,5 +1,6 @@
 package com.auth.domain.auth.model
 
+import com.auth.infrastructure.audit.Traceable
 import jakarta.persistence.*
 import java.time.LocalDateTime
 
@@ -39,12 +40,6 @@ class RefreshToken(
     val expiryDate: LocalDateTime,
 
     /**
-     * 토큰 발급 일시
-     */
-    @Column(nullable = false)
-    val createdAt: LocalDateTime = LocalDateTime.now(),
-
-    /**
      * 토큰 사용 여부
      */
     @Column(nullable = false)
@@ -54,7 +49,10 @@ class RefreshToken(
      * 토큰 차단 여부
      */
     @Column(nullable = false)
-    var revoked: Boolean = false
+    var revoked: Boolean = false,
+    
+    @Embedded
+    val traceable: Traceable = Traceable()
 ) {
     /**
      * 토큰이 만료되었는지 확인
