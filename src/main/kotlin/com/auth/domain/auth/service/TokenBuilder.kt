@@ -6,6 +6,7 @@ import com.auth.infrastructure.security.token.RefreshTokenBuilder
 import javax.crypto.SecretKey
 import java.util.Date
 
+//TODO : tokenProvider 내부 롤 분리, TokenBuilder Interface를 거쳐서 사용하도록 수정.
 /**
  * JWT 토큰 생성을 위한 빌더 인터페이스
  * DDD에서 도메인 서비스로서 토큰 생성 전략을 정의합니다.
