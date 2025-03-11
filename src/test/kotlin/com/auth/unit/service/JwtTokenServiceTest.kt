@@ -1,4 +1,4 @@
-package com.auth.service
+package com.auth.unit.service
 
 import com.auth.infrastructure.security.token.TokenProvider
 import com.auth.application.facade.JwtTokenService

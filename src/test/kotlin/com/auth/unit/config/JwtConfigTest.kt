@@ -1,4 +1,4 @@
-package com.auth.config
+package com.auth.unit.config
 
 import com.auth.infrastructure.config.JwtConfig
 import com.auth.infrastructure.config.StandardJwtStrategy

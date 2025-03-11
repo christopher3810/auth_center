@@ -1,4 +1,4 @@
-package com.auth.facade
+package com.auth.unit.facade
 
 import com.auth.TokenFacade
 import com.auth.infrastructure.config.JwtConfig

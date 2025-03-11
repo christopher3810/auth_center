@@ -1,4 +1,4 @@
-package com.auth.domain
+package com.auth.unit.domain
 
 import com.auth.domain.auth.model.TokenClaim
 import com.auth.domain.auth.model.TokenPurpose
