@@ -1,7 +1,10 @@
 package com.auth.unit.service
 
-import com.auth.infrastructure.security.token.TokenProvider
+import com.auth.infrastructure.security.token.JwtTokenAdaptor
 import com.auth.domain.auth.model.TokenPurpose
+import com.auth.exception.InvalidTokenException
+import com.auth.exception.TokenException
+import com.auth.exception.TokenExpiredException
 import com.auth.infrastructure.config.JwtConfig
 import io.jsonwebtoken.ExpiredJwtException
 import io.jsonwebtoken.Jwts
@@ -57,21 +60,21 @@ class TokenProviderTest : DescribeSpec({
 
     describe("토큰 프로바이더는") {
 
-        val sut by lazy { TokenProvider(standardConfig) }
+        val sut by lazy { JwtTokenAdaptor(standardConfig) }
 
         context("토큰 생성 요청이 들어올 때") {
 
             it("액세스 토큰을 적절한 파라미터로 생성해야 한다") {
-                val result = sut.generateToken(email)
+                val result = sut.generateAccessToken(email)
 
                 assertSoftly {
                     // JWT 형식 검증
                     result.split(".").size shouldBe 3
 
                     // 토큰 내용 검증
-                    val claims = sut.getClaimsFromToken(result)
+                    val claims = sut.getClaims(result)
                     claims.subject shouldBe email
-                    claims["type"] shouldBe "access"
+                    claims["type"] shouldBe "authorization"
 
                     // 만료 시간 검증
                     val now = Instant.now()
@@ -87,7 +90,7 @@ class TokenProviderTest : DescribeSpec({
                     result.split(".").size shouldBe 3
 
                     // 토큰 내용 검증
-                    val claims = sut.getClaimsFromToken(result)
+                    val claims = sut.getClaims(result)
                     claims.subject shouldBe email
                     claims["type"] shouldBe "refresh"
 
@@ -110,7 +113,7 @@ class TokenProviderTest : DescribeSpec({
                     token.split(".").size shouldBe 3
 
                     // 토큰 내용 검증
-                    val claims = sut.getClaimsFromToken(token)
+                    val claims = sut.getClaims(token)
                     claims.subject shouldBe email
                     claims["type"] shouldBe "authorization"
                 }
@@ -130,7 +133,7 @@ class TokenProviderTest : DescribeSpec({
                     token.split(".").size shouldBe 3
 
                     // 토큰 내용 검증
-                    val claims = sut.getClaimsFromToken(token)
+                    val claims = sut.getClaims(token)
                     claims.subject shouldBe email
                     claims["purpose"] shouldBe purpose.toString()
                     claims["type"] shouldBe "one_time"
@@ -156,8 +159,8 @@ class TokenProviderTest : DescribeSpec({
 
                 assertSoftly {
                     validationResult shouldBe false
-                    shouldThrow<SignatureException> {
-                        sut.getClaimsFromToken(tamperedToken)
+                    shouldThrow<InvalidTokenException> {
+                        sut.getClaims(tamperedToken)
                     }
                 }
             }
@@ -171,8 +174,8 @@ class TokenProviderTest : DescribeSpec({
 
                 assertSoftly {
                     validationResult shouldBe false
-                    shouldThrow<ExpiredJwtException> {
-                        sut.getClaimsFromToken(expiredToken)
+                    shouldThrow<TokenExpiredException> {
+                        sut.getClaims(expiredToken)
                     }
                 }
             }
@@ -200,7 +203,7 @@ class TokenProviderTest : DescribeSpec({
                 )
 
                 val token = createTestToken(claims = customClaims)
-                val claims = sut.getClaimsFromToken(token)
+                val claims = sut.getClaims(token)
 
                 assertSoftly(claims) {
                     subject shouldBe email
@@ -216,7 +219,7 @@ class TokenProviderTest : DescribeSpec({
             it("사용자 이메일(subject)을 정확하게 가져와야 한다") {
                 val token = createTestToken()
 
-                val extractedEmail = sut.getUsernameFromJWT(token)
+                val extractedEmail = sut.getUsername(token)
 
                 extractedEmail shouldBe email
             }

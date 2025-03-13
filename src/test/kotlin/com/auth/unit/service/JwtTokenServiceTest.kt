@@ -1,6 +1,6 @@
 package com.auth.unit.service
 
-import com.auth.infrastructure.security.token.TokenProvider
+import com.auth.infrastructure.security.token.JwtTokenAdaptor
 import com.auth.application.facade.JwtTokenService
 import com.auth.domain.auth.model.TokenClaim
 import com.auth.domain.auth.service.TokenBuilder
@@ -75,15 +75,15 @@ class JwtTokenServiceTest : DescribeSpec({
     describe("JWT 토큰 서비스는") {
         context("토큰 생성할 때") {
 
-            val mockTokenProvider = mockk<TokenProvider>()
+            val mockJwtTokenAdaptor = mockk<JwtTokenAdaptor>()
             val mockAccessTokenBuilder = testData.setupTokenBuilderMock(mockk(), testData.sampleAccessToken)
             val mockRefreshTokenBuilder = testData.setupTokenBuilderMock(mockk(), testData.sampleRefreshToken)
 
             // 토큰 생성 메서드 모킹
-            every { mockTokenProvider.createAuthorizationTokenBuilder(testData.email) } returns mockAccessTokenBuilder
-            every { mockTokenProvider.createRefreshTokenBuilder(testData.email) } returns mockRefreshTokenBuilder
+            every { mockJwtTokenAdaptor.createAuthorizationTokenBuilder(testData.email) } returns mockAccessTokenBuilder
+            every { mockJwtTokenAdaptor.createRefreshTokenBuilder(testData.email) } returns mockRefreshTokenBuilder
 
-            val sut = JwtTokenService(mockTokenProvider, testData.jwtConfig)
+            val sut = JwtTokenService(mockJwtTokenAdaptor, testData.jwtConfig)
 
             val tokenDto by lazy { sut.generateTokens(testData.userInfo) }
 
@@ -101,8 +101,8 @@ class JwtTokenServiceTest : DescribeSpec({
                 tokenDto.refreshToken shouldBe testData.sampleRefreshToken
 
                 verify {
-                    mockTokenProvider.createAuthorizationTokenBuilder(testData.email)
-                    mockTokenProvider.createRefreshTokenBuilder(testData.email)
+                    mockJwtTokenAdaptor.createAuthorizationTokenBuilder(testData.email)
+                    mockJwtTokenAdaptor.createRefreshTokenBuilder(testData.email)
                 }
 
                 verify(atLeast = 1) { mockAccessTokenBuilder.withClaim(any(), any()) }
@@ -111,14 +111,14 @@ class JwtTokenServiceTest : DescribeSpec({
         }
 
         context("토큰을 리프레시 시킬 때") {
-            val mockTokenProvider = mockk<TokenProvider>()
+            val mockJwtTokenAdaptor = mockk<JwtTokenAdaptor>()
             val mockAccessTokenBuilder = testData.setupTokenBuilderMock()
 
-            every { mockTokenProvider.validateToken(testData.sampleRefreshToken) } returns true
-            every { mockTokenProvider.getClaimsFromToken(testData.sampleRefreshToken) } returns testData.createDefaultClaims()
-            every { mockTokenProvider.createAuthorizationTokenBuilder(testData.email) } returns mockAccessTokenBuilder
+            every { mockJwtTokenAdaptor.validateToken(testData.sampleRefreshToken) } returns true
+            every { mockJwtTokenAdaptor.getClaims(testData.sampleRefreshToken) } returns testData.createDefaultClaims()
+            every { mockJwtTokenAdaptor.createAuthorizationTokenBuilder(testData.email) } returns mockAccessTokenBuilder
 
-            val sut = JwtTokenService(mockTokenProvider, testData.jwtConfig)
+            val sut = JwtTokenService(mockJwtTokenAdaptor, testData.jwtConfig)
             val refreshedTokenDto by lazy { sut.refreshToken(testData.sampleRefreshToken) }
 
             it("새 액세스 토큰을 생성하고 기존 리프레시 토큰을 유지해야 한다") {
@@ -127,28 +127,28 @@ class JwtTokenServiceTest : DescribeSpec({
                 refreshedTokenDto.expiresIn shouldBe testData.jwtConfig.expirationMs / 1000
 
                 verify {
-                    mockTokenProvider.validateToken(testData.sampleRefreshToken)
-                    mockTokenProvider.getClaimsFromToken(testData.sampleRefreshToken)
-                    mockTokenProvider.createAuthorizationTokenBuilder(testData.email)
+                    mockJwtTokenAdaptor.validateToken(testData.sampleRefreshToken)
+                    mockJwtTokenAdaptor.getClaims(testData.sampleRefreshToken)
+                    mockJwtTokenAdaptor.createAuthorizationTokenBuilder(testData.email)
                 }
             }
         }
 
         context("유효하지 않은 리프레시 토큰 처리할 때") {
             val invalidRefreshToken = "invalid.refresh.token"
-            val mockTokenProvider = mockk<TokenProvider> {
+            val mockJwtTokenAdaptor = mockk<JwtTokenAdaptor> {
                 every { validateToken(invalidRefreshToken) } returns false
             }
 
-            val sut = JwtTokenService(mockTokenProvider, testData.jwtConfig)
+            val sut = JwtTokenService(mockJwtTokenAdaptor, testData.jwtConfig)
 
             it("TokenException이 발생해야 한다") {
                 shouldThrow<TokenException> {
                     sut.refreshToken(invalidRefreshToken)
                 }
 
-                verify { mockTokenProvider.validateToken(invalidRefreshToken) }
-                verify(exactly = 0) { mockTokenProvider.getClaimsFromToken(any()) }
+                verify { mockJwtTokenAdaptor.validateToken(invalidRefreshToken) }
+                verify(exactly = 0) { mockJwtTokenAdaptor.getClaims(any()) }
             }
         }
 
@@ -165,26 +165,26 @@ class JwtTokenServiceTest : DescribeSpec({
             )
 
             testCases.forAll { testCase ->
-                val mockTokenProvider = mockk<TokenProvider> {
+                val mockJwtTokenAdaptor = mockk<JwtTokenAdaptor> {
                     every { validateToken(testCase.token) } returns testCase.isValid
                 }
 
-                val sut = JwtTokenService(mockTokenProvider, testData.jwtConfig)
+                val sut = JwtTokenService(mockJwtTokenAdaptor, testData.jwtConfig)
 
                 it("${testCase.description}은 ${testCase.isValid}를 반환해야 한다") {
                     sut.validateToken(testCase.token) shouldBe testCase.isValid
-                    verify { mockTokenProvider.validateToken(testCase.token) }
+                    verify { mockJwtTokenAdaptor.validateToken(testCase.token) }
                 }
             }
         }
 
         context("토큰에서 사용자 정보 추출할 때") {
             val token = "test.token"
-            val mockTokenProvider = mockk<TokenProvider> {
-                every { getClaimsFromToken(token) } returns testData.createDefaultClaims()
+            val mockJwtTokenAdaptor = mockk<JwtTokenAdaptor> {
+                every { getClaims(token) } returns testData.createDefaultClaims()
             }
 
-            val sut = JwtTokenService(mockTokenProvider, testData.jwtConfig)
+            val sut = JwtTokenService(mockJwtTokenAdaptor, testData.jwtConfig)
             val extractedUserInfo by lazy { sut.getUserInfoFromToken(token) }
 
             it("이메일, 사용자 ID, 역할 정보, 추가 클레임이 올바르게 추출되어야 한다") {
@@ -197,11 +197,11 @@ class JwtTokenServiceTest : DescribeSpec({
 
         context("사용자 ID가 없는 토큰 처리할 때") {
             val tokenWithoutUserId = "token.without.userid"
-            val mockTokenProvider = mockk<TokenProvider> {
-                every { getClaimsFromToken(tokenWithoutUserId) } returns testData.createDefaultClaims(includeUserId = false)
+            val mockJwtTokenAdaptor = mockk<JwtTokenAdaptor> {
+                every { getClaims(tokenWithoutUserId) } returns testData.createDefaultClaims(includeUserId = false)
             }
 
-            val sut = JwtTokenService(mockTokenProvider, testData.jwtConfig)
+            val sut = JwtTokenService(mockJwtTokenAdaptor, testData.jwtConfig)
 
             it("TokenException이 발생해야 한다") {
                 val exception = shouldThrow<TokenException> {
@@ -214,14 +214,14 @@ class JwtTokenServiceTest : DescribeSpec({
 
         context("역할정보가 없는 토큰 일 때") {
             val tokenWithoutRoles = "token.without.roles"
-            val mockTokenProvider = mockk<TokenProvider>()
+            val mockJwtTokenAdaptor = mockk<JwtTokenAdaptor>()
             val mockAccessTokenBuilder = testData.setupTokenBuilderMock()
 
-            every { mockTokenProvider.getClaimsFromToken(tokenWithoutRoles) } returns testData.createDefaultClaims(includeRoles = false)
-            every { mockTokenProvider.validateToken(tokenWithoutRoles) } returns true
-            every { mockTokenProvider.createAuthorizationTokenBuilder(testData.email) } returns mockAccessTokenBuilder
+            every { mockJwtTokenAdaptor.getClaims(tokenWithoutRoles) } returns testData.createDefaultClaims(includeRoles = false)
+            every { mockJwtTokenAdaptor.validateToken(tokenWithoutRoles) } returns true
+            every { mockJwtTokenAdaptor.createAuthorizationTokenBuilder(testData.email) } returns mockAccessTokenBuilder
 
-            val sut = JwtTokenService(mockTokenProvider, testData.jwtConfig)
+            val sut = JwtTokenService(mockJwtTokenAdaptor, testData.jwtConfig)
 
             it("empty 역할 세트를 반환하고, 리프레시시 ROLES 클레임이 추가되지 않아야 한다") {
                 val userInfo = sut.getUserInfoFromToken(tokenWithoutRoles)
@@ -232,9 +232,9 @@ class JwtTokenServiceTest : DescribeSpec({
                 refreshResult.accessToken shouldBe testData.sampleAccessToken
 
                 verify {
-                    mockTokenProvider.validateToken(tokenWithoutRoles)
-                    mockTokenProvider.getClaimsFromToken(tokenWithoutRoles)
-                    mockTokenProvider.createAuthorizationTokenBuilder(testData.email)
+                    mockJwtTokenAdaptor.validateToken(tokenWithoutRoles)
+                    mockJwtTokenAdaptor.getClaims(tokenWithoutRoles)
+                    mockJwtTokenAdaptor.createAuthorizationTokenBuilder(testData.email)
                 }
             }
         }

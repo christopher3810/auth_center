@@ -1,18 +1,18 @@
 package com.auth.application.facade
 
 import com.auth.application.auth.dto.TokenDto
-import com.auth.infrastructure.security.token.TokenProvider
+import com.auth.infrastructure.security.token.JwtTokenAdaptor
 import com.auth.domain.auth.model.TokenClaim
-import com.auth.exception.TokenException
 import com.auth.infrastructure.config.JwtConfig
-import com.auth.`interface`.rest.dto.TokenResponse
 import com.auth.application.auth.dto.UserTokenInfo
+import com.auth.exception.InvalidTokenException
+import com.auth.exception.TokenExtractionException
 
 /**
  * JWT 토큰 관련 기능을 제공하는 서비스 클래스
  */
 class JwtTokenService(
-    private val tokenProvider: TokenProvider,
+    private val jwtTokenAdaptor: JwtTokenAdaptor,
     private val jwtConfig: JwtConfig = JwtConfig.standard()
 ) {
 
@@ -24,7 +24,7 @@ class JwtTokenService(
      */
     fun generateTokens(userInfo: UserTokenInfo): TokenDto {
         // 액세스 토큰 생성
-        val authorizationTokenBuilder = tokenProvider.createAuthorizationTokenBuilder(userInfo.email)
+        val authorizationTokenBuilder = jwtTokenAdaptor.createAuthorizationTokenBuilder(userInfo.email)
             .withClaim(TokenClaim.USER_ID.value, userInfo.id)
 
         // 역할 정보가 있으면 추가
@@ -40,7 +40,7 @@ class JwtTokenService(
         val accessToken = authorizationTokenBuilder.build()
 
         // 리프레시 토큰 생성
-        val refreshToken = tokenProvider.createRefreshTokenBuilder(userInfo.email)
+        val refreshToken = jwtTokenAdaptor.createRefreshTokenBuilder(userInfo.email)
             .withClaim(TokenClaim.USER_ID.value, userInfo.id)
             .build()
 
@@ -59,15 +59,15 @@ class JwtTokenService(
      */
     fun refreshToken(refreshToken: String): TokenDto {
         // 리프레시 토큰 검증
-        if (!tokenProvider.validateToken(refreshToken)) {
-            throw TokenException("Invalid refresh token")
+        if (!jwtTokenAdaptor.validateToken(refreshToken)) {
+            throw InvalidTokenException("Invalid refresh token")
         }
 
         // 토큰에서 사용자 정보 추출
         val userInfo = getUserInfoFromToken(refreshToken)
 
         // 새 액세스 토큰 생성
-        val authorizationTokenBuilder = tokenProvider.createAuthorizationTokenBuilder(userInfo.email)
+        val authorizationTokenBuilder = jwtTokenAdaptor.createAuthorizationTokenBuilder(userInfo.email)
             .withClaim(TokenClaim.USER_ID.value, userInfo.id)
 
         // 역할 정보가 있으면 추가
@@ -96,7 +96,7 @@ class JwtTokenService(
      * @return 토큰이 유효하면 true, 아니면 false
      */
     fun validateToken(token: String): Boolean {
-        return tokenProvider.validateToken(token)
+        return jwtTokenAdaptor.validateToken(token)
     }
 
     /**
@@ -106,11 +106,11 @@ class JwtTokenService(
      * @return 사용자 정보
      */
     fun getUserInfoFromToken(token: String): UserTokenInfo {
-        val claims = tokenProvider.getClaimsFromToken(token)
+        val claims = jwtTokenAdaptor.getClaims(token)
 
         val email = claims.subject
         val userId = claims[TokenClaim.USER_ID.value]?.toString()?.toLongOrNull()
-            ?: throw TokenException("User ID not found in token")
+            ?: throw TokenExtractionException("User ID not found in token")
 
         // 역할 정보 추출
         val roles = claims[TokenClaim.ROLES.value]?.toString()

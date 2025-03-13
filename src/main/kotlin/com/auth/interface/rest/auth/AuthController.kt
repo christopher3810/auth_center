@@ -3,7 +3,7 @@ package com.auth.`interface`.rest.auth
 import com.auth.`interface`.rest.dto.TokenResponse
 import com.auth.`interface`.rest.dto.TokenValidationResponse
 import com.auth.application.auth.service.TokenBlacklistService
-import com.auth.infrastructure.security.token.TokenProvider
+import com.auth.infrastructure.security.token.JwtTokenAdaptor
 import com.auth.`interface`.rest.dto.LoginRequest
 import com.auth.`interface`.rest.dto.TokenRefreshRequest
 import com.auth.`interface`.rest.dto.TokenValidationRequest
@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.*
 @RestController
 @RequestMapping("/api/auth")
 class AuthController(
-    private val tokenProvider: TokenProvider,
+    private val jwtTokenAdaptor: JwtTokenAdaptor,
     private val tokenBlacklistService: TokenBlacklistService
 ) {
     private val logger = LoggerFactory.getLogger(AuthController::class.java)
@@ -34,8 +34,8 @@ class AuthController(
         logger.info("로그인 요청: {}", loginRequest.username)
         
         // 예시 구현 - 실제로는 사용자 인증 후 토큰 발급
-        val accessToken = tokenProvider.generateToken(loginRequest.username)
-        val refreshToken = tokenProvider.generateRefreshToken(loginRequest.username)
+        val accessToken = jwtTokenAdaptor.generateAccessToken(loginRequest.username)
+        val refreshToken = jwtTokenAdaptor.generateRefreshToken(loginRequest.username)
         
         val response = TokenResponse(
             accessToken = accessToken,
@@ -54,15 +54,15 @@ class AuthController(
         logger.info("토큰 갱신 요청")
         
         // 토큰 유효성 검증
-        if (!tokenProvider.validateToken(refreshRequest.refreshToken)) {
+        if (!jwtTokenAdaptor.validateToken(refreshRequest.refreshToken)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build()
         }
         
         // 사용자 정보 추출
-        val username = tokenProvider.getUsernameFromJWT(refreshRequest.refreshToken)
+        val username = jwtTokenAdaptor.getUsername(refreshRequest.refreshToken)
         
         // 새 액세스 토큰 발급
-        val accessToken = tokenProvider.generateToken(username)
+        val accessToken = jwtTokenAdaptor.generateAccessToken(username)
         
         val response = TokenResponse(
             accessToken = accessToken,
@@ -96,11 +96,11 @@ class AuthController(
     fun validateToken(@RequestBody request: TokenValidationRequest): ResponseEntity<TokenValidationResponse> {
         logger.info("토큰 검증 요청")
         
-        val isValid = tokenProvider.validateToken(request.token)
+        val isValid = jwtTokenAdaptor.validateToken(request.token)
         
         val response = if (isValid) {
-            val username = tokenProvider.getUsernameFromJWT(request.token)
-            val claims = tokenProvider.getClaimsFromToken(request.token)
+            val username = jwtTokenAdaptor.getUsername(request.token)
+            val claims = jwtTokenAdaptor.getClaims(request.token)
             val userId = claims["userId"]?.toString()
             val roles = claims["roles"]?.toString()?.split(",") ?: emptyList()
             
