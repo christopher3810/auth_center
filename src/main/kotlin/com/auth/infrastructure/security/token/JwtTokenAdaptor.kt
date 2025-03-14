@@ -2,9 +2,8 @@ package com.auth.infrastructure.security.token
 
 import com.auth.infrastructure.config.JwtConfig
 import com.auth.domain.auth.model.TokenPurpose
-import com.auth.domain.auth.service.TokenBuilder
-import com.auth.domain.auth.token.TokenGenerator
-import com.auth.domain.auth.token.TokenValidator
+import com.auth.domain.auth.service.TokenGenerator
+import com.auth.domain.auth.service.TokenValidator
 import com.auth.exception.InvalidTokenException
 import com.auth.exception.TokenExpiredException
 import com.auth.exception.TokenExtractionException
@@ -17,12 +16,12 @@ import org.springframework.stereotype.Component
 import javax.crypto.SecretKey
 
 /**
- * JWT 토큰 생성 및 검증을 담당하는 애플리케이션 서비스
+ * 주요기능 구현체 DI를 통해서 사용된다.
  */
 @Component
 class JwtTokenAdaptor(
     private val jwtConfig: JwtConfig = JwtConfig.standard()
-):TokenGenerator, TokenValidator {
+): TokenGenerator, TokenValidator {
     // 문자열을 바이트 배열로 변환하여 적절한 Key 인스턴스 생성
     private val key: SecretKey = Keys.hmacShaKeyFor(jwtConfig.secret.toByteArray(Charsets.UTF_8))
 
@@ -30,31 +29,63 @@ class JwtTokenAdaptor(
     /**
      * 사용자의 이메일을 기반으로 JWT 토큰을 생성합니다.
      *
-     * @param email 사용자의 이메일
+     * @param subject 사용자의 이메일
      * @return 생성된 JWT 토큰
      */
-    override fun generateAccessToken(email: String): String {
-        return createAuthorizationTokenBuilder(email).build()
+    override fun generateAccessToken(subject: String): String {
+        return generateAccessTokenBuilder(subject).build()
     }
 
     /**
      * 사용자의 이메일을 기반으로 리프레시 토큰을 생성합니다.
      *
-     * @param email 사용자의 이메일
+     * @param subject 사용자의 이메일
      * @return 생성된 리프레시 토큰
      */
-    override fun generateRefreshToken(email: String): String {
-        return createRefreshTokenBuilder(email).build()
+    override fun generateRefreshToken(subject: String): String {
+        return generateRefreshTokenBuilder(subject).build()
     }
 
     /**
      * 사용자의 이메일을 기반으로 일회용 토큰을 생성합니다.
      *
-     * @param email 사용자의 이메일
+     * @param subject 사용자의 이메일
      * @return 생성된 리프레시 토큰
      */
-    override fun generateOneTimeToken(email: String, purpose: TokenPurpose): String {
-        return createOneTimeTokenBuilder(email, purpose).build()
+    override fun generateOneTimeToken(subject: String, purpose: TokenPurpose): String {
+        return generateOneTimeTokenBuilder(subject, purpose).build()
+    }
+
+    /**
+     * 권한 검증용 토큰 빌더를 생성합니다.
+     *
+     * @param subject 토큰의 주체(일반적으로 사용자 이메일)
+     * @return TokenBuilder 인스턴스
+     */
+    override fun generateAccessTokenBuilder(subject: String): TokenBuilder {
+        return TokenBuilder.authorizationTokenBuilder(subject, jwtConfig.refreshExpirationMs, key)
+    }
+
+    /**
+     * 리프레시 토큰 빌더를 생성합니다.
+     *
+     * @param subject 토큰의 주체(일반적으로 사용자 이메일)
+     * @return TokenBuilder 인스턴스
+     */
+    override fun generateRefreshTokenBuilder(subject: String): TokenBuilder {
+        return TokenBuilder.refreshTokenBuilder(subject, jwtConfig.refreshExpirationMs, key)
+    }
+
+    /**
+     * 일회용 토큰 빌더를 생성합니다.
+     *
+     * @param subject 토큰의 주체(일반적으로 사용자 이메일)
+     * @param purpose 토큰의 목적
+     * @return TokenBuilder 인스턴스
+     */
+    override fun generateOneTimeTokenBuilder(subject: String, purpose: TokenPurpose): TokenBuilder {
+        val oneTimeExpirationMs = jwtConfig.expirationMs / 2
+        return TokenBuilder.oneTimeTokenBuilder(subject, oneTimeExpirationMs, key, purpose.value)
     }
 
     /**
@@ -113,40 +144,6 @@ class JwtTokenAdaptor(
      */
     override fun getPurpose(token: String): String? {
         return getClaims(token)["purpose"] as? String
-    }
-
-
-    /**
-     * 리프레시 토큰 빌더를 생성합니다.
-     *
-     * @param subject 토큰의 주체(일반적으로 사용자 이메일)
-     * @return TokenBuilder 인스턴스
-     */
-    fun createRefreshTokenBuilder(subject: String): TokenBuilder {
-        return TokenBuilder.refreshTokenBuilder(subject, jwtConfig.refreshExpirationMs, key)
-    }
-
-    /**
-     * 권한 검증용 토큰 빌더를 생성합니다.
-     *
-     * @param subject 토큰의 주체(일반적으로 사용자 이메일)
-     * @return TokenBuilder 인스턴스
-     */
-    fun createAuthorizationTokenBuilder(subject: String): TokenBuilder {
-        return TokenBuilder.authorizationTokenBuilder(subject, jwtConfig.expirationMs, key)
-    }
-
-    /**
-     * 일회용 토큰 빌더를 생성합니다.
-     *
-     * @param subject 토큰의 주체(일반적으로 사용자 이메일)
-     * @param purpose 토큰의 목적
-     * @return TokenBuilder 인스턴스
-     */
-    fun createOneTimeTokenBuilder(subject: String, purpose: TokenPurpose): TokenBuilder {
-        // 일회용 토큰은 일반적으로 더 짧은 만료 시간을 가짐
-        val oneTimeExpirationMs = jwtConfig.expirationMs / 2
-        return TokenBuilder.oneTimeTokenBuilder(subject, oneTimeExpirationMs, key, purpose.value)
     }
 
 } 

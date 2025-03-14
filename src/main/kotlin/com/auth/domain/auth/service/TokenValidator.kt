@@ -1,9 +1,7 @@
-package com.auth.domain.auth.token
+package com.auth.domain.auth.service
 import io.jsonwebtoken.Claims
 
-/**
- * 토큰 검증을 담당하는 도메인 서비스 인터페이스
- */
+//TODO : getClaim 떄문에 이름 다르게 해야할듯.
 interface TokenValidator {
     /**
      * JWT 토큰을 파싱하여 Claims를 추출합니다.
@@ -21,12 +19,7 @@ interface TokenValidator {
      * @param token JWT 토큰
      * @return 토큰이 유효하면 true, 그렇지 않으면 false
      */
-    fun validateToken(token: String): Boolean = try {
-        getClaims(token)
-        true
-    } catch (e: Exception) {
-        false
-    }
+    fun validateToken(token: String): Boolean
 
     /**
      * JWT 토큰에서 사용자의 이메일(Subject)을 추출합니다.

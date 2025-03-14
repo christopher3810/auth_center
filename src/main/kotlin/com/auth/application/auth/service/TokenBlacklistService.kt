@@ -1,7 +1,7 @@
 package com.auth.application.auth.service
 
 import com.auth.domain.auth.repository.RefreshTokenRepository
-import com.auth.infrastructure.security.token.JwtTokenAdaptor
+import com.auth.domain.auth.service.TokenValidator
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -16,7 +16,7 @@ import java.time.ZoneId
  */
 @Service
 class TokenBlacklistService(
-    private val jwtTokenAdaptor: JwtTokenAdaptor,
+    private val tokenValidator: TokenValidator,
     private val refreshTokenRepository: RefreshTokenRepository
 ) {
     private val logger = LoggerFactory.getLogger(TokenBlacklistService::class.java)
@@ -31,13 +31,13 @@ class TokenBlacklistService(
     fun addToBlacklist(token: String): Boolean {
         return try {
             // 토큰 검증
-            if (!jwtTokenAdaptor.validateToken(token)) {
+            if (!tokenValidator.validateToken(token)) {
                 logger.warn("블랙리스트에 추가 실패: 유효하지 않은 토큰")
                 return false
             }
             
             // 토큰에서 사용자 정보 추출
-            val claims = jwtTokenAdaptor.getClaims(token)
+            val claims = tokenValidator.getClaims(token)
             val userId = claims["userId"]?.toString()?.toLongOrNull()
             
             if (userId == null) {
@@ -78,7 +78,7 @@ class TokenBlacklistService(
     fun isBlacklisted(token: String): Boolean {
         return try {
             // 토큰에서 사용자 정보 추출
-            val claims = jwtTokenAdaptor.getClaims(token)
+            val claims = tokenValidator.getClaims(token)
             val tokenType = claims["type"]?.toString()
             
             // 리프레시 토큰인 경우 데이터베이스에서 확인
