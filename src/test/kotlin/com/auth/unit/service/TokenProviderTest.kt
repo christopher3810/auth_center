@@ -102,7 +102,7 @@ class TokenProviderTest : DescribeSpec({
             }
 
             it("권한 검증 토큰 빌더를 적절한 파라미터로 생성해야 한다") {
-                val result = sut.createAuthorizationTokenBuilder(email)
+                val result = sut.generateAccessTokenBuilder(email)
 
                 // 빌더 객체 타입 검증
                 result::class.simpleName shouldBe "AuthorizationTokenBuilder"
@@ -122,7 +122,7 @@ class TokenProviderTest : DescribeSpec({
             it("일회용 토큰 요청시 목적에 맞는 토큰 빌더를 생성해야 한다") {
                 val purpose = TokenPurpose.EMAIL_VERIFICATION
 
-                val result = sut.createOneTimeTokenBuilder(email, purpose)
+                val result = sut.generateOneTimeTokenBuilder(email, purpose)
 
                 result::class.simpleName shouldBe "OneTimeTokenBuilder"
 

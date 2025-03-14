@@ -2,7 +2,7 @@ package com.auth.unit.domain
 
 import com.auth.domain.auth.model.TokenClaim
 import com.auth.domain.auth.model.TokenPurpose
-import com.auth.domain.auth.service.TokenBuilder
+import com.auth.infrastructure.security.token.TokenBuilder
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.security.Keys
