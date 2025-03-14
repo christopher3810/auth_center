@@ -1,9 +1,7 @@
 package com.auth.infrastructure.security.token
 
-import com.auth.domain.auth.service.TokenBuilder
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.JwtBuilder
-import java.security.Key
 import javax.crypto.SecretKey
 import java.util.Date
 
@@ -11,7 +9,7 @@ import java.util.Date
  * TokenBuilder 인터페이스의 기본 구현을 제공하는 추상 클래스
  * 도메인 서비스의 추상화를 구체화한 인프라스트럭처 구현체입니다.
  */
-abstract class AbstractTokenBuilder(
+internal open class AbstractTokenBuilder(
     protected val subject: String,
     protected val expirationMs: Long,
     protected val key: SecretKey

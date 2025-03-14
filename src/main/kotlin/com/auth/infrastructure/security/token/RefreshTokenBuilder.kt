@@ -10,7 +10,7 @@ import javax.crypto.SecretKey
  * 리프레시 토큰 생성을 위한 빌더 구현체
  * 긴 만료 시간을 가진 토큰으로, 액세스 토큰 갱신에 사용됩니다.
  */
-class RefreshTokenBuilder(
+internal class RefreshTokenBuilder(
     subject: String,
     expirationMs: Long,
     key: SecretKey

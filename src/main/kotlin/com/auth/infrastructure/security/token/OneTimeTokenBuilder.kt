@@ -10,7 +10,7 @@ import javax.crypto.SecretKey
  * 일회용 토큰 생성을 위한 빌더 구현체
  * 이메일 인증, 비밀번호 재설정 등 일회성 작업에 사용되는 토큰입니다.
  */
-class OneTimeTokenBuilder(
+internal class OneTimeTokenBuilder(
     subject: String,
     expirationMs: Long,
     key: SecretKey,
