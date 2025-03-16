@@ -1,24 +1,37 @@
 package com.auth.infrastructure.repository
 
-import com.auth.domain.user.model.User
+import com.auth.domain.user.entity.UserEntity
+import com.auth.domain.user.value.Email
+import com.auth.domain.user.value.UserStatus
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
 import java.util.Optional
 
-/**
- * 사용자 정보에 접근하기 위한 JPA 리포지토리
- * Spring Data JPA 기능을 활용한 데이터 접근 인터페이스
- */
 @Repository
-interface UserJpaRepository : JpaRepository<User, Long> {
-    
+interface UserJpaRepository : JpaRepository<UserEntity, Long> {
+
     /**
      * 이메일로 사용자 찾기
      */
-    fun findByEmail(email: String): Optional<User>
+    fun findByEmail(email: Email): Optional<UserEntity>
+
+    /**
+     * 사용자 이름으로 사용자 찾기
+     */
+    fun findByUserName(userName: String): Optional<UserEntity>
+
+    /**
+     * 사용자 상태로 사용자 찾기
+     */
+    fun findAllByStatus(userStatus: UserStatus): List<UserEntity>
     
     /**
      * 이메일 존재 여부 확인
      */
-    fun existsByEmail(email: String): Boolean
+    fun existsByEmail(email: Email): Boolean
+
+    /**
+     * 사용자 이름 존재 여부 확인
+     */
+    fun existsByUserName(userName: String): Boolean
 } 

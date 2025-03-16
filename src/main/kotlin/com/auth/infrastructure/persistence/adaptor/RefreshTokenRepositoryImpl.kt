@@ -1,31 +1,26 @@
 package com.auth.infrastructure.persistence.adaptor
 
-import com.auth.domain.auth.model.RefreshToken
+import com.auth.domain.auth.entity.RefreshTokenEntity
 import com.auth.domain.auth.repository.RefreshTokenRepository
 import com.auth.infrastructure.repository.RefreshTokenJpaRepository
 import org.springframework.stereotype.Repository
 import java.time.LocalDateTime
 import java.util.Optional
 
-/**
- * RefreshTokenRepository 도메인 인터페이스의 구현체
- * 
- * 인프라스트럭처 계층에서 JPA 기반 영속성을 제공합니다.
- */
 @Repository
 class RefreshTokenRepositoryImpl(
     private val jpaRepository: RefreshTokenJpaRepository
 ) : RefreshTokenRepository {
     
-    override fun findByToken(token: String): Optional<RefreshToken> {
+    override fun findByToken(token: String): Optional<RefreshTokenEntity> {
         return jpaRepository.findByToken(token)
     }
     
-    override fun findByUserId(userId: Long): List<RefreshToken> {
+    override fun findByUserId(userId: Long): List<RefreshTokenEntity> {
         return jpaRepository.findByUserId(userId)
     }
     
-    override fun findByUserIdAndValidTrue(userId: Long, currentTime: LocalDateTime): List<RefreshToken> {
+    override fun findByUserIdAndValidTrue(userId: Long, currentTime: LocalDateTime): List<RefreshTokenEntity> {
         return jpaRepository.findValidTokensByUserId(userId, currentTime)
     }
     
@@ -37,15 +32,15 @@ class RefreshTokenRepositoryImpl(
         return jpaRepository.deleteAllExpiredTokens(now)
     }
     
-    override fun save(refreshToken: RefreshToken): RefreshToken {
-        return jpaRepository.save(refreshToken)
+    override fun save(refreshTokenEntity: RefreshTokenEntity): RefreshTokenEntity {
+        return jpaRepository.save(refreshTokenEntity)
     }
     
-    override fun delete(refreshToken: RefreshToken) {
-        jpaRepository.delete(refreshToken)
+    override fun delete(refreshTokenEntity: RefreshTokenEntity) {
+        jpaRepository.delete(refreshTokenEntity)
     }
     
-    override fun findById(id: Long): Optional<RefreshToken> {
+    override fun findById(id: Long): Optional<RefreshTokenEntity> {
         return jpaRepository.findById(id)
     }
 } 
