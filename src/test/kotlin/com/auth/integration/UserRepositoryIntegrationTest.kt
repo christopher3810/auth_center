@@ -1,6 +1,8 @@
 package com.auth.integration
 
-import com.auth.domain.user.model.User
+import com.auth.domain.user.entity.UserEntity
+import com.auth.domain.user.value.Email
+import com.auth.domain.user.value.Password
 import com.auth.infrastructure.audit.HeaderAuditorAware
 import com.auth.infrastructure.config.JpaAuditingConfig
 import com.auth.infrastructure.repository.UserJpaRepository
@@ -46,10 +48,12 @@ class UserRepositoryIntegrationTest : DescribeSpec() {
                     RequestContextHolder.setRequestAttributes(attributes)
 
                     // 새로운 User 생성 및 저장
-                    val user = User(
-                        email = "integration@example.com",
-                        password = "password",
-                        name = "Integration Test"
+                    val user = UserEntity(
+                        userName = "integration_test",
+                        email = Email("integration@example.com"),
+                        password = Password.of("Password123!"),
+                        name = "Integration Test",
+                        phoneNumber = "010-1234-5678"
                     )
                     val savedUser = userJpaRepository.save(user)
 

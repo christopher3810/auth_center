@@ -28,7 +28,7 @@ class TokenBuilderTest : DescribeSpec({
     describe("토큰 빌더는") {
         val subject = "test@example.com"
         val expirationMs = 3600000L // 1시간
-        val key by lazy {
+        val secretKey: SecretKey by lazy {
             Keys.hmacShaKeyFor("testSecretKeyForUnitTestingThatIsLongEnough".toByteArray())
         }
 
@@ -38,6 +38,7 @@ class TokenBuilderTest : DescribeSpec({
                 val builderFactory: (String, Long, SecretKey) -> TokenBuilder,
                 val expectedType: String,
                 val description: String,
+                val key: SecretKey,
                 val additionalChecks: (Claims) -> Unit = {}
             )
 
@@ -45,24 +46,27 @@ class TokenBuilderTest : DescribeSpec({
                 TokenBuilderTestCase(
                     TokenBuilder::accessTokenBuilder,
                     "access",
-                    "액세스 토큰 빌더"
+                    "액세스 토큰 빌더",
+                    secretKey
                 ),
                 TokenBuilderTestCase(
                     TokenBuilder::refreshTokenBuilder,
                     "refresh",
-                    "리프레시 토큰 빌더"
+                    "리프레시 토큰 빌더",
+                    secretKey
                 ),
                 TokenBuilderTestCase(
                     TokenBuilder::authorizationTokenBuilder,
                     "authorization",
-                    "권한 확인용 토큰 빌더"
+                    "권한 확인용 토큰 빌더",
+                    secretKey
                 )
             )
 
             testCases.forAll { testCase ->
                 it("${testCase.description}는 '${testCase.expectedType}' 타입의 토큰을 생성해야 한다") {
                     // 테스트 케이스에 따른 빌더 생성
-                    val sut = testCase.builderFactory(subject, expirationMs, key)
+                    val sut = testCase.builderFactory(subject, expirationMs, secretKey)
 
                     // 토큰 생성 및 파싱
                     val token = sut.build().also {
@@ -71,7 +75,7 @@ class TokenBuilderTest : DescribeSpec({
                         it.shouldHaveMinLength(20)
                     }
 
-                    val claims = parseToken(token, key)
+                    val claims = parseToken(token, secretKey)
                     claims.subject shouldBe subject
                     claims.issuedAt.shouldNotBeNull()
                     claims.expiration.shouldNotBeNull()
@@ -94,12 +98,12 @@ class TokenBuilderTest : DescribeSpec({
                     val sut = TokenBuilder.oneTimeTokenBuilder(
                         subject,
                         expirationMs,
-                        key,
+                        secretKey,
                         purpose.value
                     )
 
                     val token = sut.build()
-                    val claims = parseToken(token, key)
+                    val claims = parseToken(token, secretKey)
 
                     claims["type"] shouldBe "one_time"
                     claims["purpose"] shouldBe purpose.value
@@ -121,11 +125,11 @@ class TokenBuilderTest : DescribeSpec({
             ).forAll { claimKey, value, expectedClass ->
                 it("$claimKey: $value 클레임이 올바른 타입(${expectedClass.simpleName})으로 저장되어야 한다") {
 
-                    val sut = TokenBuilder.accessTokenBuilder(subject, expirationMs, key)
+                    val sut = TokenBuilder.accessTokenBuilder(subject, expirationMs, secretKey)
                         .withClaim(claimKey, value)
 
                     val token = sut.build()
-                    val claims = parseToken(token, key)
+                    val claims = parseToken(token, secretKey)
 
                     claims[claimKey].shouldNotBeNull()
 
@@ -143,14 +147,14 @@ class TokenBuilderTest : DescribeSpec({
             }
 
             it("여러 클레임을 함께 추가할 수 있어야 한다") {
-                val sut = TokenBuilder.accessTokenBuilder(subject, expirationMs, key)
+                val sut = TokenBuilder.accessTokenBuilder(subject, expirationMs, secretKey)
                     .withClaim("userId", 123L)
                     .withClaim("roles", "ROLE_USER,ROLE_ADMIN")
                     .withClaim("emailVerified", true)
                     .withClaim("score", 85.5)
 
                 val token = sut.build()
-                val claims = parseToken(token, key)
+                val claims = parseToken(token, secretKey)
 
                 with(claims) {
                     this["userId"].toString() shouldBe "123"
@@ -162,18 +166,18 @@ class TokenBuilderTest : DescribeSpec({
 
             it("체이닝 메서드는 동일한 빌더 인스턴스를 반환해야 한다") {
 
-                val sut = TokenBuilder.accessTokenBuilder(subject, expirationMs, key)
+                val sut = TokenBuilder.accessTokenBuilder(subject, expirationMs, secretKey)
                 val result = sut.withClaim("test", "value")
 
                 result shouldBe sut
             }
 
             it("type 클레임 값을 변경하려고 시도해도 빌더의 기본값이 유지되어야 한다") {
-                val sut = TokenBuilder.accessTokenBuilder(subject, expirationMs, key)
+                val sut = TokenBuilder.accessTokenBuilder(subject, expirationMs, secretKey)
                     .withClaim("type", "custom-type")
 
                 val token = sut.build()
-                val claims = parseToken(token, key)
+                val claims = parseToken(token, secretKey)
 
                 claims["type"] shouldBe "access"
             }
@@ -185,12 +189,11 @@ class TokenBuilderTest : DescribeSpec({
                 val userId = 123L
                 val roles = setOf("ROLE_USER", "ROLE_ADMIN")
 
-                val sut = TokenBuilder.authorizationTokenBuilder(subject, expirationMs, key)
+                val sut = TokenBuilder.authorizationTokenBuilder(subject, expirationMs, secretKey, roles)
                     .withClaim(TokenClaim.USER_ID.value, userId)
-                    .withClaim(TokenClaim.ROLES.value, roles.joinToString(","))
 
                 val token = sut.build()
-                val claims = parseToken(token, key)
+                val claims = parseToken(token, secretKey)
 
                 claims[TokenClaim.USER_ID.value].toString() shouldBe userId.toString()
                 claims[TokenClaim.ROLES.value] shouldBe "ROLE_USER,ROLE_ADMIN"
@@ -198,7 +201,7 @@ class TokenBuilderTest : DescribeSpec({
 
             it("사용자 정의 가능한 TokenClaim 타입을 사용할 때 올바르게 토큰에 포함되어야 한다") {
 
-                val sut = TokenBuilder.accessTokenBuilder(subject, expirationMs, key)
+                val sut = TokenBuilder.accessTokenBuilder(subject, expirationMs, secretKey)
 
                 TokenClaim.entries.forEach { claim ->
                     // type 클레임은 내부적으로 설정되므로 별도 처리
@@ -208,7 +211,7 @@ class TokenBuilderTest : DescribeSpec({
                 }
 
                 val token = sut.build()
-                val claims = parseToken(token, key)
+                val claims = parseToken(token, secretKey)
 
                 // 커스텀 TokenClaim이 포함되어 있는지 검증
                 TokenClaim.entries.forEach { claim ->
