@@ -1,59 +1,31 @@
 package com.auth.domain.auth.model
 
-import com.auth.infrastructure.audit.Traceable
-import jakarta.persistence.*
+import com.auth.domain.auth.event.TokenEvent
+import com.auth.domain.auth.event.TokenRevokedEvent
+import com.auth.domain.auth.event.TokenUsedEvent
 import java.time.LocalDateTime
 
 /**
- * 리프레시 토큰 도메인 엔티티
- * 인증 바운디드 컨텍스트의 핵심 개체로, 토큰 관련 비즈니스 로직을 캡슐화합니다.
+ * 리프레시 토큰 도메인 모델 (비즈니스 로직용)
+ * 모델링 문서 참고: "Refresh 토큰처럼 영속되어야 하는 경우 도메인 객체로 간주할 수 있습니다."
+ * 
+ * 주: DDD 원칙에 따라 도메인 모델 생성 책임은 Factory로 이동하고,
+ * 도메인 모델은 비즈니스 로직에 집중합니다.
  */
-@Entity
-@Table(name = "refresh_tokens")
 class RefreshToken(
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long = 0,
-
-    /**
-     * 토큰 값
-     */
-    @Column(nullable = false, unique = true, length = 500)
     val token: String,
-
-    /**
-     * 토큰 소유자의 ID
-     */
-    @Column(nullable = false)
     val userId: Long,
-
-    /**
-     * 토큰 소유자의 이메일
-     */
-    @Column(nullable = false)
     val userEmail: String,
-
-    /**
-     * 토큰 만료 일시
-     */
-    @Column(nullable = false)
     val expiryDate: LocalDateTime,
-
-    /**
-     * 토큰 사용 여부
-     */
-    @Column(nullable = false)
     var used: Boolean = false,
-
-    /**
-     * 토큰 차단 여부
-     */
-    @Column(nullable = false)
     var revoked: Boolean = false,
-    
-    @Embedded
-    val traceable: Traceable = Traceable()
+    val createdAt: LocalDateTime? = null,
+    val updatedAt: LocalDateTime? = null
 ) {
+    // 도메인 이벤트를 저장하는 리스트
+    private val domainEvents = mutableListOf<TokenEvent>()
+    
     /**
      * 토큰이 만료되었는지 확인
      */
@@ -71,14 +43,38 @@ class RefreshToken(
     /**
      * 토큰 사용 처리
      */
-    fun markAsUsed() {
-        used = true
+    fun markAsUsed(): RefreshToken {
+        if (!used) {
+            used = true
+            registerEvent(TokenUsedEvent(this))
+        }
+        return this
     }
 
     /**
      * 토큰 차단 처리
      */
-    fun revoke() {
-        revoked = true
+    fun revoke(): RefreshToken {
+        if (!revoked) {
+            revoked = true
+            registerEvent(TokenRevokedEvent(this))
+        }
+        return this
+    }
+    
+    /**
+     * 이벤트 등록
+     */
+    fun registerEvent(event: TokenEvent) {
+        domainEvents.add(event)
+    }
+    
+    /**
+     * 도메인 이벤트 조회 및 소비
+     */
+    fun consumeEvents(): List<TokenEvent> {
+        val events = domainEvents.toList()
+        domainEvents.clear()
+        return events
     }
 } 

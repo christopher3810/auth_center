@@ -4,23 +4,28 @@ import com.auth.domain.auth.model.TokenPurpose
 import com.auth.infrastructure.security.token.TokenBuilder
 
 /**
- * 토큰 생성을 담당하는 도메인 서비스 인터페이스
+ * 토큰 문자열 생성을 담당하는 인터페이스
+ * 
+ * 이 인터페이스는 도메인 계층에 위치하지만, 도메인 모델에 직접 의존하지 않습니다.
+ * 대신 토큰 생성에 필요한 최소한의 정보(subject, userId, roles 등)만 받아 
+ * 토큰 문자열을 생성하는 책임을 가집니다.
  */
 interface TokenGenerator {
 
-    //TODO : 필요에 따라 User 도메인이 input type이 되어야함.
-    //바로생성 (standard or 전략 받도록 수정)
-    fun generateAccessToken(subject: String): String
+    /**
+     * 사용자 정보로부터 액세스 토큰 문자열 생성
+     */
+    fun generateAccessTokenString(subject: String, userId: Long,
+                                  roles: Set<String> = emptySet(),
+                                  permissions: Set<String> = emptySet()): String
 
-    fun generateRefreshToken(subject: String): String
+    /**
+     * 사용자 정보로부터 리프레시 토큰 문자열 생성
+     */
+    fun generateRefreshTokenString(subject: String, userId: Long): String
 
-    fun generateOneTimeToken(subject: String, purpose: TokenPurpose): String
-
-    //커스텀생성
-    fun generateAccessTokenBuilder(subject: String): TokenBuilder
-
-    fun generateRefreshTokenBuilder(subject: String): TokenBuilder
-
-    fun generateOneTimeTokenBuilder(subject: String, purpose: TokenPurpose): TokenBuilder
-
+    /**
+     * 사용자 정보로부터 일회용 토큰 문자열 생성
+     */
+    fun generateOneTimeTokenString(subject: String, userId: Long, purpose: TokenPurpose): String
 }
