@@ -12,41 +12,25 @@ import javax.crypto.SecretKey
 internal class AuthorizationTokenBuilder(
     subject: String,
     expirationMs: Long,
-    key: SecretKey
+    key: SecretKey,
+    private val roles: Set<String>,
+    private val permissions: Set<String>
 ) : AbstractTokenBuilder(subject, expirationMs, key) {
-    
-    /**
-     * 사용자 역할 정보를 토큰에 추가합니다.
-     *
-     * @param roles 사용자 역할 목록
-     * @return TokenBuilder 인스턴스
-     */
-    fun withRoles(roles: List<String>): TokenBuilder {
-        return withClaim(TokenClaim.ROLES.value, roles.joinToString(","))
-    }
-
-    /**
-     * 사용자 권한 정보를 토큰에 추가합니다.
-     *
-     * @param permissions 사용자 권한 목록
-     * @return TokenBuilder 인스턴스
-     */
-    fun withPermissions(permissions: List<String>): TokenBuilder {
-        return withClaim(TokenClaim.PERMISSIONS.value, permissions.joinToString(","))
-    }
 
     override fun customizeBuild(builder: JwtBuilder) {
-        // 권한 검증용 토큰 타입 설정
-        builder.claim(TokenClaim.TYPE.value, TokenType.AUTHORIZATION.value)
-        
-        // 기본 역할 클레임이 없다면 빈 값 설정
-        if (!claims.containsKey(TokenClaim.ROLES.value)) {
-            builder.claim(TokenClaim.ROLES.value, "")
-        }
-        
-        // 기본 권한 클레임이 없다면 빈 값 설정
-        if (!claims.containsKey(TokenClaim.PERMISSIONS.value)) {
-            builder.claim(TokenClaim.PERMISSIONS.value, "")
+        builder.apply {
+            claim(TokenClaim.TYPE.value, TokenType.AUTHORIZATION.value)
+
+            when {
+                roles.isNotEmpty() -> claim(TokenClaim.ROLES.value, roles.joinToString(","))
+                else -> claim(TokenClaim.ROLES.value, "")
+            }
+            
+            when {
+                permissions.isNotEmpty() -> claim(TokenClaim.PERMISSIONS.value, permissions.joinToString(","))
+                else -> claim(TokenClaim.PERMISSIONS.value, "")
+            }
         }
     }
-} 
+
+}

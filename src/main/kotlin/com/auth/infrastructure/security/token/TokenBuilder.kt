@@ -76,10 +76,18 @@ interface TokenBuilder {
          * @param subject 토큰의 주체(일반적으로 사용자 이메일)
          * @param expirationMs 토큰 만료 시간(밀리초)
          * @param key 서명에 사용할 키
+         * @param roles 사용자 role 정보 미입력시 빈값으로 생성
+         * @param permissions 사용자 권한 정보 미입력시 빈값으로 생성
          * @return TokenBuilder 인스턴스
          */
-        fun authorizationTokenBuilder(subject: String, expirationMs: Long, key: SecretKey): TokenBuilder {
-            return AuthorizationTokenBuilder(subject, expirationMs, key)
+        fun authorizationTokenBuilder(
+            subject: String,
+            expirationMs: Long,
+            key: SecretKey,
+            roles: Set<String> = emptySet(),
+            permissions: Set<String> = emptySet()
+        ): TokenBuilder {
+            return AuthorizationTokenBuilder(subject, expirationMs, key, roles, permissions)
         }
         
         /**

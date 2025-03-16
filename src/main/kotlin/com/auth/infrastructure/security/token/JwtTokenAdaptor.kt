@@ -1,99 +1,78 @@
 package com.auth.infrastructure.security.token
 
-import com.auth.infrastructure.config.JwtConfig
 import com.auth.domain.auth.model.TokenPurpose
+import com.auth.domain.auth.model.TokenType
 import com.auth.domain.auth.service.TokenGenerator
 import com.auth.domain.auth.service.TokenValidator
 import com.auth.exception.InvalidTokenException
 import com.auth.exception.TokenExpiredException
 import com.auth.exception.TokenExtractionException
+import com.auth.infrastructure.config.JwtConfig
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.ExpiredJwtException
 import io.jsonwebtoken.JwtException
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.security.Keys
 import org.springframework.stereotype.Component
+import java.time.Instant
 import javax.crypto.SecretKey
 
 /**
- * 주요기능 구현체 DI를 통해서 사용된다.
+ * JWT 토큰 관련 기능을 구현하는 어댑터 클래스
+ *
+ * 이 클래스는 인프라 계층에 위치하며, 토큰 문자열 생성 및 검증에 집중합니다.
+ * 도메인 모델에 직접 의존하지 않고, 토큰 생성에 필요한 최소한의 정보만 받아 처리합니다.
  */
 @Component
 class JwtTokenAdaptor(
-    private val jwtConfig: JwtConfig = JwtConfig.standard()
-): TokenGenerator, TokenValidator {
+    private val jwtConfig: JwtConfig
+) : TokenGenerator, TokenValidator {
     // 문자열을 바이트 배열로 변환하여 적절한 Key 인스턴스 생성
     private val key: SecretKey = Keys.hmacShaKeyFor(jwtConfig.secret.toByteArray(Charsets.UTF_8))
-
+    private val USE_ID: String = "userId"
 
     /**
-     * 사용자의 이메일을 기반으로 JWT 토큰을 생성합니다.
-     *
-     * @param subject 사용자의 이메일
-     * @return 생성된 JWT 토큰
+     * 사용자 정보로부터 액세스 토큰 문자열 생성
      */
-    override fun generateAccessToken(subject: String): String {
-        return generateAccessTokenBuilder(subject).build()
+    override fun generateAccessTokenString(
+        subject: String, userId: Long,
+        roles: Set<String>, permissions: Set<String>
+    ): String {
+
+        val tokenBuilder = TokenBuilder.authorizationTokenBuilder(
+            subject, jwtConfig.expirationMs, key, roles, permissions
+        )
+        return tokenBuilder
+            .withClaim(USE_ID , userId)
+            .build()
     }
 
     /**
-     * 사용자의 이메일을 기반으로 리프레시 토큰을 생성합니다.
-     *
-     * @param subject 사용자의 이메일
-     * @return 생성된 리프레시 토큰
+     * 사용자 정보로부터 리프레시 토큰 문자열 생성
      */
-    override fun generateRefreshToken(subject: String): String {
-        return generateRefreshTokenBuilder(subject).build()
+    override fun generateRefreshTokenString(subject: String, userId: Long): String {
+        val tokenBuilder = TokenBuilder.refreshTokenBuilder(
+            subject, jwtConfig.refreshTokenExpirationMs, key
+        )
+        return tokenBuilder
+            .withClaim(USE_ID, userId)
+            .build()
     }
 
     /**
-     * 사용자의 이메일을 기반으로 일회용 토큰을 생성합니다.
-     *
-     * @param subject 사용자의 이메일
-     * @return 생성된 리프레시 토큰
+     * 사용자 정보로부터 일회용 토큰 문자열 생성
      */
-    override fun generateOneTimeToken(subject: String, purpose: TokenPurpose): String {
-        return generateOneTimeTokenBuilder(subject, purpose).build()
-    }
-
-    /**
-     * 권한 검증용 토큰 빌더를 생성합니다.
-     *
-     * @param subject 토큰의 주체(일반적으로 사용자 이메일)
-     * @return TokenBuilder 인스턴스
-     */
-    override fun generateAccessTokenBuilder(subject: String): TokenBuilder {
-        return TokenBuilder.authorizationTokenBuilder(subject, jwtConfig.refreshExpirationMs, key)
-    }
-
-    /**
-     * 리프레시 토큰 빌더를 생성합니다.
-     *
-     * @param subject 토큰의 주체(일반적으로 사용자 이메일)
-     * @return TokenBuilder 인스턴스
-     */
-    override fun generateRefreshTokenBuilder(subject: String): TokenBuilder {
-        return TokenBuilder.refreshTokenBuilder(subject, jwtConfig.refreshExpirationMs, key)
-    }
-
-    /**
-     * 일회용 토큰 빌더를 생성합니다.
-     *
-     * @param subject 토큰의 주체(일반적으로 사용자 이메일)
-     * @param purpose 토큰의 목적
-     * @return TokenBuilder 인스턴스
-     */
-    override fun generateOneTimeTokenBuilder(subject: String, purpose: TokenPurpose): TokenBuilder {
-        val oneTimeExpirationMs = jwtConfig.expirationMs / 2
-        return TokenBuilder.oneTimeTokenBuilder(subject, oneTimeExpirationMs, key, purpose.value)
+    override fun generateOneTimeTokenString(subject: String, userId: Long, purpose: TokenPurpose): String {
+        val tokenBuilder = TokenBuilder.oneTimeTokenBuilder(
+            subject, jwtConfig.expirationMs, key, purpose.value
+        )
+        return tokenBuilder
+            .withClaim(USE_ID, userId)
+            .build()
     }
 
     /**
      * JWT 토큰을 파싱하여 Claims를 추출합니다.
-     *
-     * @param token JWT 토큰
-     * @return 토큰에 포함된 Claims 객체
-     * @throws InvalidTokenException 토큰이 유효하지 않거나 파싱에 실패한 경우
      */
     override fun getClaims(token: String): Claims {
         return try {
@@ -113,9 +92,6 @@ class JwtTokenAdaptor(
 
     /**
      * JWT 토큰의 유효성을 검증합니다.
-     *
-     * @param token JWT 토큰
-     * @return 토큰이 유효하면 true, 그렇지 않으면 false
      */
     override fun validateToken(token: String): Boolean {
         return try {
@@ -127,23 +103,62 @@ class JwtTokenAdaptor(
     }
 
     /**
-     * JWT 토큰에서 사용자의 이메일(subject)을 추출합니다.
-     *
-     * @param token JWT 토큰
-     * @return 토큰의 subject (일반적으로 사용자 이메일)
+     * JWT 토큰에서 사용자의 식별자(subject)를 추출합니다.
      */
-    override fun getUsername(token: String): String {
+    override fun getSubject(token: String): String {
         return getClaims(token).subject
     }
 
     /**
-     * JWT 토큰에서 토큰의 목적(purpose) 클레임을 추출합니다.
-     *
-     * @param token JWT 토큰
-     * @return 토큰에 포함된 purpose 값 (없으면 null)
+     * JWT 토큰에서 사용자 ID를 추출합니다.
      */
-    override fun getPurpose(token: String): String? {
-        return getClaims(token)["purpose"] as? String
+    override fun getUserId(token: String): Long? {
+        val userId = getClaims(token)[USE_ID] ?: return null
+        return when (userId) {
+            is Number -> userId.toLong()
+            is String -> userId.toLong()
+            else -> null
+        }
+    }
+
+    /**
+     * JWT 토큰에서 토큰의 목적(purpose) 클레임을 추출합니다.
+     */
+    override fun getPurpose(token: String): TokenPurpose? {
+        val purposeStr = getClaims(token)["purpose"] as? String ?: return null
+        return TokenPurpose.fromValue(purposeStr)
+    }
+
+    /**
+     * JWT 토큰에서 토큰 타입을 추출합니다.
+     */
+    override fun getTokenType(token: String): TokenType? {
+        val typeStr = getClaims(token)["type"] as? String ?: return null
+        return TokenType.fromValue(typeStr)
+    }
+
+    /**
+     * JWT 토큰에서 역할 정보를 추출합니다.
+     */
+    override fun getRoles(token: String): Set<String> {
+        val roles = getClaims(token)["roles"] as? String
+        return roles?.split(",")?.toSet() ?: emptySet()
+    }
+
+    /**
+     * JWT 토큰에서 권한 정보를 추출합니다.
+     */
+    override fun getPermissions(token: String): Set<String> {
+        val permissions = getClaims(token)["permissions"] as? String
+        return permissions?.split(",")?.toSet() ?: emptySet()
+    }
+
+    /**
+     * JWT 토큰에서 만료 시간을 추출합니다.
+     */
+    override fun getExpirationTime(token: String): Instant? {
+        val expiration = getClaims(token).expiration
+        return expiration?.toInstant()
     }
 
 } 
