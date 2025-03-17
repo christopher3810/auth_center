@@ -15,7 +15,7 @@ import java.util.Optional
  * 이렇게 조회와 생성 책임을 명확히 분리합니다.
  */
 @Service
-class RefreshTokenService(
+class RefreshTokenDomainService(
     private val refreshTokenRepository: RefreshTokenRepository,
     private val tokenGenerator: TokenGenerator,
     private val jwtConfig: JwtConfig

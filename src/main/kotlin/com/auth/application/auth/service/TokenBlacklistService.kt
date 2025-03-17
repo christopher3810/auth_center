@@ -1,6 +1,6 @@
 package com.auth.application.auth.service
 
-import com.auth.domain.auth.service.RefreshTokenService
+import com.auth.domain.auth.service.RefreshTokenDomainService
 import com.auth.domain.auth.service.TokenValidator
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.stereotype.Service
@@ -16,7 +16,7 @@ private val logger = KotlinLogging.logger {}
 @Service
 class TokenBlacklistService(
     private val tokenValidator: TokenValidator,
-    private val refreshTokenService: RefreshTokenService
+    private val refreshTokenDomainService: RefreshTokenDomainService
 ) {
     companion object {
         private const val TYPE_CLAIM = "type"
@@ -67,7 +67,7 @@ class TokenBlacklistService(
      * 리프레시 토큰을 블랙리스트에 추가합니다.
      */
     private fun handleRefreshTokenBlacklisting(token: String): Boolean {
-        val revokedToken = refreshTokenService.revokeToken(token)
+        val revokedToken = refreshTokenDomainService.revokeToken(token)
         val success = processRevokeResult(revokedToken)
         logRevokeResult(success, token)
         return success
@@ -95,7 +95,7 @@ class TokenBlacklistService(
      * 액세스 토큰 무효화를 위해 해당 사용자의 모든 리프레시 토큰을 차단합니다.
      */
     private fun handleAccessTokenBlacklisting(userId: Long, token: String): Boolean {
-        val revokedCount = refreshTokenService.revokeAllUserTokens(userId)
+        val revokedCount = refreshTokenDomainService.revokeAllUserTokens(userId)
         logger.debug { "액세스 토큰 블랙리스트 추가로 인해 ${revokedCount}개의 리프레시 토큰 차단됨 (토큰: ${token.trim()})" }
         return true
     }
@@ -131,7 +131,7 @@ class TokenBlacklistService(
      * 리프레시 토큰이 블랙리스트에 있는지 확인합니다.
      */
     private fun isRefreshTokenBlacklisted(token: String): Boolean {
-        val refreshToken = refreshTokenService.findByToken(token)
+        val refreshToken = refreshTokenDomainService.findByToken(token)
         return refreshToken.map { !it.isValid() }.orElse(false)
     }
 
@@ -140,7 +140,7 @@ class TokenBlacklistService(
      */
     @Transactional
     fun cleanupExpiredTokens() {
-        val deletedCount = refreshTokenService.removeExpiredTokens()
+        val deletedCount = refreshTokenDomainService.removeExpiredTokens()
         logCleanupResult(deletedCount)
     }
     

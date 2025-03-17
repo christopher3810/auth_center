@@ -5,7 +5,7 @@ import com.auth.application.auth.dto.UserTokenInfo
 import com.auth.domain.auth.factory.AccessTokenFactory
 import com.auth.domain.auth.model.RefreshToken
 import com.auth.domain.auth.model.TokenPurpose
-import com.auth.domain.auth.service.RefreshTokenService
+import com.auth.domain.auth.service.RefreshTokenDomainService
 import com.auth.domain.auth.service.TokenGenerator
 import com.auth.domain.auth.service.TokenValidator
 import com.auth.exception.InvalidTokenException
@@ -28,7 +28,7 @@ import java.util.Optional
 class TokenService(
     private val tokenGenerator: TokenGenerator,
     private val tokenValidator: TokenValidator,
-    private val refreshTokenService: RefreshTokenService,
+    private val refreshTokenDomainService: RefreshTokenDomainService,
     private val accessTokenFactory: AccessTokenFactory,
     private val jwtConfig: JwtConfig
 ) {
@@ -48,7 +48,7 @@ class TokenService(
         )
         
         // 2. 리프레시 토큰 생성 및 저장
-        val refreshToken = refreshTokenService.generateRefreshToken(
+        val refreshToken = refreshTokenDomainService.generateRefreshToken(
             subject = userInfo.email,
             userId = userInfo.id
         )
@@ -77,7 +77,7 @@ class TokenService(
         }
         
         // 2. 도메인 모델 조회
-        val refreshTokenModel = refreshTokenService.findByToken(refreshTokenValue)
+        val refreshTokenModel = refreshTokenDomainService.findByToken(refreshTokenValue)
             .orElseThrow { InvalidTokenException("Refresh token not found in the system") }
         
         // 3. 도메인 모델 유효성 검증
@@ -100,11 +100,11 @@ class TokenService(
         )
 
         // 6. 현재 리프레시 토큰을 사용됨으로 표시
-        refreshTokenService.markTokenAsUsed(refreshTokenValue)
+        refreshTokenDomainService.markTokenAsUsed(refreshTokenValue)
         
         // 7. 새 리프레시 토큰 발급 (요청된 경우)
         val finalRefreshToken: RefreshToken = if (issueNewRefreshToken) {
-            refreshTokenService.generateRefreshToken(subject, userId)
+            refreshTokenDomainService.generateRefreshToken(subject, userId)
         } else {
             refreshTokenModel
         }
@@ -133,7 +133,7 @@ class TokenService(
      */
     @Transactional
     fun revokeRefreshToken(token: String): Boolean {
-        return refreshTokenService.revokeToken(token).isPresent
+        return refreshTokenDomainService.revokeToken(token).isPresent
     }
     
     /**
@@ -141,7 +141,7 @@ class TokenService(
      */
     @Transactional
     fun revokeAllUserTokens(userId: Long): Int {
-        return refreshTokenService.revokeAllUserTokens(userId)
+        return refreshTokenDomainService.revokeAllUserTokens(userId)
     }
 
     /**
@@ -211,7 +211,7 @@ class TokenService(
      */
     @Transactional
     fun cleanupExpiredTokens(): Int {
-        return refreshTokenService.removeExpiredTokens()
+        return refreshTokenDomainService.removeExpiredTokens()
     }
 
     /**

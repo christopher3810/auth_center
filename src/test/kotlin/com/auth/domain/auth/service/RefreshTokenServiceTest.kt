@@ -28,7 +28,7 @@ class RefreshTokenServiceTest : DescribeSpec({
         refreshTokenValidityInSeconds = 86400
     )
 
-    val sut = RefreshTokenService(repository, tokenGenerator, jwtConfig)
+    val sut = RefreshTokenDomainService(repository, tokenGenerator, jwtConfig)
 
     describe("RefreshTokenService는") {
 
