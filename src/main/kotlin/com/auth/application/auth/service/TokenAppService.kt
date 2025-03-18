@@ -25,7 +25,7 @@ import java.util.Optional
  * 도메인 팩토리(AccessTokenFactory)를 오케스트레이션하여 토큰 관련 유스케이스를 구현합니다.
  */
 @Service
-class TokenService(
+class TokenAppService(
     private val tokenGenerator: TokenGenerator,
     private val tokenValidator: TokenValidator,
     private val refreshTokenDomainService: RefreshTokenDomainService,

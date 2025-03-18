@@ -11,7 +11,7 @@ private val logger = KotlinLogging.logger {}
 
 /**
  * 토큰 블랙리스트 관리 애플리케이션 서비스
- * 애플리케이션 계층에 위치하여 도메인 로직을 조정하고 외부 서비스와 연동합니다.
+ * 도메인 로직을 조정하고 외부 서비스와 연동.
  */
 @Service
 class TokenBlacklistService(

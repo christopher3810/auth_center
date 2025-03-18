@@ -2,7 +2,7 @@ package com.auth.unit.service
 
 import com.auth.application.auth.dto.TokenDto
 import com.auth.application.auth.dto.UserTokenInfo
-import com.auth.application.auth.service.TokenService
+import com.auth.application.auth.service.TokenAppService
 import com.auth.domain.auth.factory.AccessTokenFactory
 import com.auth.domain.auth.model.AccessToken
 import com.auth.domain.auth.model.RefreshToken
@@ -122,7 +122,7 @@ class TokenServiceTest : DescribeSpec({
                 )
             } returns testData.refreshTokenEntity
 
-            val sut = TokenService(
+            val sut = TokenAppService(
                 mockTokenGenerator,
                 mockTokenValidator,
                 mockRefreshTokenDomainService,
@@ -214,7 +214,7 @@ class TokenServiceTest : DescribeSpec({
             every { mockRefreshTokenDomainService.markTokenAsUsed(testData.sampleRefreshToken) } returns
                 Optional.of(testData.refreshTokenEntity)
 
-            val sut = TokenService(
+            val sut = TokenAppService(
                 mockTokenGenerator,
                 mockTokenValidator,
                 mockRefreshTokenDomainService,
@@ -287,7 +287,7 @@ class TokenServiceTest : DescribeSpec({
             val mockRefreshTokenDomainService = mockk<RefreshTokenDomainService>()
             val mockAccessTokenFactory = mockk<AccessTokenFactory>()
 
-            val sut = TokenService(
+            val sut = TokenAppService(
                 mockTokenGenerator,
                 mockTokenValidator,
                 mockRefreshTokenDomainService,
@@ -353,7 +353,7 @@ class TokenServiceTest : DescribeSpec({
             val mockRefreshTokenDomainService = mockk<RefreshTokenDomainService>()
             val mockAccessTokenFactory = mockk<AccessTokenFactory>()
 
-            val sut = TokenService(
+            val sut = TokenAppService(
                 mockTokenGenerator,
                 mockTokenValidator,
                 mockRefreshTokenDomainService,
@@ -390,7 +390,7 @@ class TokenServiceTest : DescribeSpec({
             val mockRefreshTokenDomainService = mockk<RefreshTokenDomainService>()
             val mockAccessTokenFactory = mockk<AccessTokenFactory>()
 
-            val sut = TokenService(
+            val sut = TokenAppService(
                 mockTokenGenerator,
                 mockTokenValidator,
                 mockRefreshTokenDomainService,
@@ -430,7 +430,7 @@ class TokenServiceTest : DescribeSpec({
             val mockRefreshTokenDomainService = mockk<RefreshTokenDomainService>()
             val mockAccessTokenFactory = mockk<AccessTokenFactory>()
 
-            val sut = TokenService(
+            val sut = TokenAppService(
                 mockTokenGenerator,
                 mockTokenValidator,
                 mockRefreshTokenDomainService,
@@ -474,7 +474,7 @@ class TokenServiceTest : DescribeSpec({
             every { mockTokenValidator.getUserId(token) } returns testData.userId
             every { mockTokenValidator.getRoles(token) } returns testData.roles
 
-            val sut = TokenService(
+            val sut = TokenAppService(
                 mockTokenGenerator,
                 mockTokenValidator,
                 mockRefreshTokenDomainService,
@@ -539,7 +539,7 @@ class TokenServiceTest : DescribeSpec({
             val mockRefreshTokenDomainService = mockk<RefreshTokenDomainService>()
             val mockAccessTokenFactory = mockk<AccessTokenFactory>()
 
-            val sut = TokenService(
+            val sut = TokenAppService(
                 mockTokenGenerator,
                 mockTokenValidator,
                 mockRefreshTokenDomainService,
@@ -607,7 +607,7 @@ class TokenServiceTest : DescribeSpec({
             val mockRefreshTokenDomainService = mockk<RefreshTokenDomainService>()
             val mockAccessTokenFactory = mockk<AccessTokenFactory>()
 
-            val sut = TokenService(
+            val sut = TokenAppService(
                 mockTokenGenerator,
                 mockTokenValidator,
                 mockRefreshTokenDomainService,
@@ -643,7 +643,7 @@ class TokenServiceTest : DescribeSpec({
             val mockRefreshTokenDomainService = mockk<RefreshTokenDomainService>()
             val mockAccessTokenFactory = mockk<AccessTokenFactory>()
 
-            val sut = TokenService(
+            val sut = TokenAppService(
                 mockTokenGenerator,
                 mockTokenValidator,
                 mockRefreshTokenDomainService,
