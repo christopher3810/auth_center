@@ -13,12 +13,12 @@ interface UserJpaRepository : JpaRepository<UserEntity, Long> {
     /**
      * 이메일로 사용자 찾기
      */
-    fun findByEmail(email: Email): Optional<UserEntity>
+    fun findByEmail(email: Email): UserEntity?
 
     /**
      * 사용자 이름으로 사용자 찾기
      */
-    fun findByUserName(userName: String): Optional<UserEntity>
+    fun findByUserName(userName: String): UserEntity?
 
     /**
      * 사용자 상태로 사용자 찾기

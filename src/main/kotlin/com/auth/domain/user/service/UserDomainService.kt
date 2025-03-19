@@ -8,12 +8,15 @@ import com.auth.domain.user.value.Email
 import com.auth.domain.user.value.UserStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import java.util.Optional
+
+
+inline fun <T> T?.orThrow(exceptionProvider: () -> Throwable): T {
+    return this ?: throw exceptionProvider()
+}
+
 
 /**
  * 사용자 도메인 서비스
- * 도메인 모델에 비즈니스 로직 적용
- * 이렇게 조회와 생성 책임을 명확히 분리합니다.
  */
 @Service
 class UserDomainService(
@@ -21,30 +24,33 @@ class UserDomainService(
 ) {
 
     @Transactional(readOnly = true)
-    fun findUserById(id: Long): Optional<User> {
-        val userEntityOpt = userRepository.findById(id)
-        return userEntityOpt.map { UserFactory.createFromEntity(it) }
+    fun findUserById(id: Long): User? {
+        val entity = userRepository.findById(id)
+            .orThrow { NoSuchElementException("사용자를 찾을 수 없습니다 : userId - $id") }
+        return UserFactory.createFromEntity(entity)
     }
 
     @Transactional(readOnly = true)
-    fun findUserByEmail(email: Email): Optional<User> {
-        val userEntityOpt = userRepository.findByEmail(email)
-        return userEntityOpt.map { UserFactory.createFromEntity(it) }
+    fun findUserByEmail(email: Email): User? {
+        val entity = userRepository.findByEmail(email)
+            .orThrow { NoSuchElementException("사용자를 찾을 수 없습니다 : email - $email") }
+        return UserFactory.createFromEntity(entity)
     }
 
     @Transactional(readOnly = true)
-    fun findUserByUsername(username: String): Optional<User> {
-        val userEntityOpt = userRepository.findByUsername(username)
-        return userEntityOpt.map { UserFactory.createFromEntity(it) }
+    fun findUserByUsername(username: String): User? {
+        val entity = userRepository.findByUsername(username)
+            .orThrow { NoSuchElementException("사용자를 찾을 수 없습니다 : username - $username") }
+        return UserFactory.createFromEntity(entity)
     }
-    
+
     /**
      * 상태별 사용자 목록 조회
      */
     @Transactional(readOnly = true)
     fun findUsersByStatus(status: UserStatus): List<User> {
-        val userEntities = userRepository.findAllByStatus(status)
-        return userEntities.map { UserFactory.createFromEntity(it) }
+        return userRepository.findAllByStatus(status)
+            .map { UserFactory.createFromEntity(it) }
     }
     
     /**
@@ -61,13 +67,8 @@ class UserDomainService(
 
         val emailObj = Email(email)
 
-        if (userRepository.existsByEmail(emailObj)) {
-            throw IllegalArgumentException("이미 사용 중인 이메일입니다: $email")
-        }
-        
-        if (userRepository.existsByUsername(username)) {
-            throw IllegalArgumentException("이미 사용 중인 사용자명입니다: $username")
-        }
+        require(!userRepository.existsByEmail(emailObj)) { "이미 사용 중인 이메일입니다: $email" }
+        require(!userRepository.existsByUsername(username)) { "이미 사용 중인 사용자명입니다: $username" }
 
         val user = UserFactory.createUser(
             username = username,
@@ -95,17 +96,14 @@ class UserDomainService(
             UserFactory.createEntity(user)
         } else {
             // 기존 사용자 업데이트인 경우
-            val existingEntity = userRepository.findById(user.id)
-                .orElseThrow { IllegalArgumentException("존재하지 않는 사용자 ID: ${user.id}") }
-
-            // Entity 업데이트
-            UserFactory.updateEntity(existingEntity, user)
+            userRepository.findById(user.id)
+                ?.let { existingEntity -> UserFactory.updateEntity(existingEntity, user)
+            } ?: throw IllegalArgumentException("존재하지 않는 사용자 ID: ${user.id}")
         }
-        
+
         // 2. Entity 저장
         val savedEntity = userRepository.save(userEntity)
-        
-        // 3. 저장된 Entity -> 도메인 모델 변환 (Factory 사용)
+
         return UserFactory.createFromEntity(savedEntity)
     }
     
@@ -114,9 +112,9 @@ class UserDomainService(
      */
     @Transactional
     fun deleteUser(user: User) {
-        userRepository.findById(user.id).ifPresent { entity ->
-            userRepository.delete(entity)
-        }
+        val entity = userRepository.findById(user.id)
+            .orThrow { NoSuchElementException("사용자를 찾을 수 없습니다 : userId - $user.id") }
+        userRepository.delete(entity)
     }
     
     /**

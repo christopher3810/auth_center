@@ -6,18 +6,17 @@ import com.auth.domain.user.value.Email
 import com.auth.domain.user.value.UserStatus
 import com.auth.infrastructure.repository.UserJpaRepository
 import org.springframework.stereotype.Repository
-import java.util.Optional
 
 @Repository
 class UserRepositoryImpl(
     private val jpaRepository: UserJpaRepository
 ) : UserRepository {
     
-    override fun findByEmail(email: Email): Optional<UserEntity> {
+    override fun findByEmail(email: Email): UserEntity? {
         return jpaRepository.findByEmail(email)
     }
 
-    override fun findByUsername(username: String): Optional<UserEntity> {
+    override fun findByUsername(username: String): UserEntity? {
         return jpaRepository.findByUserName(username)
     }
 
@@ -29,8 +28,8 @@ class UserRepositoryImpl(
         return jpaRepository.existsByUserName(username)
     }
 
-    override fun findById(id: Long): Optional<UserEntity> {
-        return jpaRepository.findById(id)
+    override fun findById(id: Long): UserEntity? {
+        return jpaRepository.findById(id).orElse(null)
     }
 
     override fun findAllByStatus(status: UserStatus): List<UserEntity> {
@@ -41,8 +40,8 @@ class UserRepositoryImpl(
         return jpaRepository.save(userEntity)
     }
     
-    override fun delete(user: UserEntity) {
-        jpaRepository.delete(user)
+    override fun delete(userEntity: UserEntity) {
+        jpaRepository.delete(userEntity)
     }
     
     override fun findAll(): List<UserEntity> {
