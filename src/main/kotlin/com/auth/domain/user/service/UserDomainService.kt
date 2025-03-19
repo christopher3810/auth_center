@@ -24,21 +24,21 @@ class UserDomainService(
 ) {
 
     @Transactional(readOnly = true)
-    fun findUserById(id: Long): User? {
+    fun findUserById(id: Long): User {
         val entity = userRepository.findById(id)
             .orThrow { NoSuchElementException("사용자를 찾을 수 없습니다 : userId - $id") }
         return UserFactory.createFromEntity(entity)
     }
 
     @Transactional(readOnly = true)
-    fun findUserByEmail(email: Email): User? {
+    fun findUserByEmail(email: Email): User {
         val entity = userRepository.findByEmail(email)
             .orThrow { NoSuchElementException("사용자를 찾을 수 없습니다 : email - $email") }
         return UserFactory.createFromEntity(entity)
     }
 
     @Transactional(readOnly = true)
-    fun findUserByUsername(username: String): User? {
+    fun findUserByUsername(username: String): User {
         val entity = userRepository.findByUsername(username)
             .orThrow { NoSuchElementException("사용자를 찾을 수 없습니다 : username - $username") }
         return UserFactory.createFromEntity(entity)
@@ -91,17 +91,12 @@ class UserDomainService(
     @Transactional
     fun saveUser(user: User): User {
 
-        val userEntity: UserEntity = if (user.id == 0L) {
-            // 신규 사용자인 경우
+        val userEntity = userRepository.findById(user.id)?.let { existingEntity ->
+            UserFactory.updateEntity(existingEntity, user)
+        } ?: run {
             UserFactory.createEntity(user)
-        } else {
-            // 기존 사용자 업데이트인 경우
-            userRepository.findById(user.id)
-                ?.let { existingEntity -> UserFactory.updateEntity(existingEntity, user)
-            } ?: throw IllegalArgumentException("존재하지 않는 사용자 ID: ${user.id}")
         }
 
-        // 2. Entity 저장
         val savedEntity = userRepository.save(userEntity)
 
         return UserFactory.createFromEntity(savedEntity)
