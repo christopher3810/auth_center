@@ -1,6 +1,5 @@
 package com.auth.domain.user.service
 
-import com.auth.domain.user.entity.UserEntity
 import com.auth.domain.user.factory.UserFactory
 import com.auth.domain.user.model.User
 import com.auth.domain.user.repository.UserRepository
