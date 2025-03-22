@@ -4,7 +4,7 @@ import com.auth.domain.user.model.User
 import com.auth.domain.user.service.UserDomainService
 import com.auth.domain.user.value.Email
 import com.auth.domain.user.value.Password
-import com.auth.exception.UserNotFound
+import com.auth.exception.UserNotFoundException
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -91,7 +91,7 @@ class UserAppService(
     @Transactional
     fun updateUserProfile(userId: Long, name: String, phoneNumber: String?): User =
         runCatching { userDomainService.findUserById(userId) }
-            .getOrElse { throw UserNotFound(userId, it) }
+            .getOrElse { throw UserNotFoundException(userId, it) }
             .apply { update(name, phoneNumber) }
             .let { userDomainService.saveUser(it) }
 

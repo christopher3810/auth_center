@@ -6,7 +6,7 @@ import com.auth.domain.user.service.UserDomainService
 import com.auth.domain.user.value.Email
 import com.auth.domain.user.value.Password
 import com.auth.domain.user.value.UserStatus
-import com.auth.exception.UserNotFound
+import com.auth.exception.UserNotFoundException
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.IsolationMode
 import io.kotest.core.spec.style.DescribeSpec
@@ -161,7 +161,7 @@ class UserAppServiceTest : DescribeSpec({
                 val nonExistentId = 9999999999L
                 every { userDomainService.findUserById(nonExistentId) } throws NoSuchElementException("사용자를 찾을 수 없습니다 : userId - $nonExistentId")
                 
-                shouldThrow<UserNotFound> {
+                shouldThrow<UserNotFoundException> {
                     sut.updateUserProfile(nonExistentId, updatedName, updatedPhoneNumber)
                 }
                 

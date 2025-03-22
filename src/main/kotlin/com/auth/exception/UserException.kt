@@ -2,7 +2,7 @@ package com.auth.exception
 
 sealed class UserException (message: String, cause: Throwable? = null) : RuntimeException(message, cause)
 
-class UserNotFound(userId: Long, cause: Throwable? = null) :
+class UserNotFoundException(userId: Long, cause: Throwable? = null) :
     UserException("사용자를 찾을 수 없습니다: userId - $userId", cause)
 
 class InvalidUserInput(message: String, cause: Throwable? = null) :
