@@ -91,7 +91,7 @@ class UserAppService(
     @Transactional
     fun updateUserProfile(userId: Long, name: String, phoneNumber: String?): User =
         runCatching { userDomainService.findUserById(userId) }
-            .getOrElse { throw UserNotFoundException(userId, it) }
+            .getOrElse { throw UserNotFoundException.byId(userId, it) }
             .apply { update(name, phoneNumber) }
             .let { userDomainService.saveUser(it) }
 

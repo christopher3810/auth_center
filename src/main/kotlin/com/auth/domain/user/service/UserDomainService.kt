@@ -5,6 +5,7 @@ import com.auth.domain.user.model.User
 import com.auth.domain.user.repository.UserRepository
 import com.auth.domain.user.value.Email
 import com.auth.domain.user.value.UserStatus
+import com.auth.exception.UserNotFoundException
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -25,21 +26,21 @@ class UserDomainService(
     @Transactional(readOnly = true)
     fun findUserById(id: Long): User {
         val entity = userRepository.findById(id)
-            .orThrow { NoSuchElementException("사용자를 찾을 수 없습니다 : userId - $id") }
+            .orThrow { UserNotFoundException.byId(id) }
         return UserFactory.createFromEntity(entity)
     }
 
     @Transactional(readOnly = true)
     fun findUserByEmail(email: Email): User {
         val entity = userRepository.findByEmail(email)
-            .orThrow { NoSuchElementException("사용자를 찾을 수 없습니다 : email - $email") }
+            .orThrow { UserNotFoundException.byEmail(email.value) }
         return UserFactory.createFromEntity(entity)
     }
 
     @Transactional(readOnly = true)
     fun findUserByUsername(username: String): User {
         val entity = userRepository.findByUsername(username)
-            .orThrow { NoSuchElementException("사용자를 찾을 수 없습니다 : username - $username") }
+            .orThrow { UserNotFoundException.byUsername(username) }
         return UserFactory.createFromEntity(entity)
     }
 
@@ -107,7 +108,7 @@ class UserDomainService(
     @Transactional
     fun deleteUser(user: User) {
         val entity = userRepository.findById(user.id)
-            .orThrow { NoSuchElementException("사용자를 찾을 수 없습니다 : userId - $user.id") }
+            .orThrow { UserNotFoundException.byId(user.id) }
         userRepository.delete(entity)
     }
     
