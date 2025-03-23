@@ -21,10 +21,6 @@ import org.springframework.web.context.request.RequestContextHolder
 import org.springframework.web.context.request.ServletRequestAttributes
 import java.util.*
 
-/**
- * TestTransactionEventListener 통합 테스트
- * DCI 스타일로 작성된 테스트로, 테스트 트랜잭션 이벤트 리스너의 동작을 검증합니다.
- */
 @IntegrationTest
 @TestExecutionListeners(
     listeners = [DependencyInjectionTestExecutionListener::class, TestTransactionEventListener::class],
