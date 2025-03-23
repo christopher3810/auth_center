@@ -156,6 +156,13 @@ class User(
     fun isLoginable(): Boolean {
         return status.isUsable()
     }
+
+    /**
+     * 사용자가 활성 상태인지 확인
+     */
+    fun isLock(): Boolean {
+        return status == UserStatus.LOCKED
+    }
     
     /**
      * 이벤트 등록
