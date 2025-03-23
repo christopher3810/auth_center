@@ -5,6 +5,7 @@ import com.auth.domain.user.model.User
 import com.auth.domain.user.repository.UserRepository
 import com.auth.domain.user.value.Email
 import com.auth.domain.user.value.UserStatus
+import com.auth.exception.AlreadyUserExistsException
 import com.auth.exception.UserNotFoundException
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -14,6 +15,12 @@ inline fun <T> T?.orThrow(exceptionProvider: () -> Throwable): T {
     return this ?: throw exceptionProvider()
 }
 
+
+inline fun Boolean.requireNotExists(lazyMessage: () -> AlreadyUserExistsException) {
+    if (this) {
+        throw lazyMessage()
+    }
+}
 
 /**
  * 사용자 도메인 서비스
@@ -64,11 +71,12 @@ class UserDomainService(
         name: String,
         phoneNumber: String? = null
     ): User {
-
         val emailObj = Email(email)
 
-        require(!userRepository.existsByEmail(emailObj)) { "이미 사용 중인 이메일입니다: $email" }
-        require(!userRepository.existsByUsername(username)) { "이미 사용 중인 사용자명입니다: $username" }
+        userRepository.existsByEmail(emailObj)
+            .requireNotExists { AlreadyUserExistsException.byEmail(email) }
+        userRepository.existsByUsername(username)
+            .requireNotExists { AlreadyUserExistsException.byUsername(username) }
 
         val user = UserFactory.createUser(
             username = username,
@@ -90,7 +98,6 @@ class UserDomainService(
      */
     @Transactional
     fun saveUser(user: User): User {
-
         val userEntity = userRepository.findById(user.id)?.let { existingEntity ->
             UserFactory.updateEntity(existingEntity, user)
         } ?: run {
