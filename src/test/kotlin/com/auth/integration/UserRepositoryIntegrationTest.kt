@@ -1,5 +1,6 @@
 package com.auth.integration
 
+import com.auth.annotation.JpaIntegrationTest
 import com.auth.domain.user.entity.UserEntity
 import com.auth.domain.user.value.Email
 import com.auth.domain.user.value.Password
@@ -22,9 +23,8 @@ import org.springframework.test.context.ActiveProfiles
 import org.springframework.web.context.request.RequestContextHolder
 import org.springframework.web.context.request.ServletRequestAttributes
 
-@DataJpaTest
+@JpaIntegrationTest
 @Import(JpaAuditingConfig::class, HeaderAuditorAware::class)
-@ActiveProfiles("test")
 class UserRepositoryIntegrationTest : DescribeSpec() {
 
     override fun extensions() = listOf(SpringExtension)
