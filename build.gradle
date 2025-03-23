@@ -41,7 +41,6 @@ dependencies {
     
     // JPA 관련 의존성
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-    runtimeOnly 'com.h2database:h2' // 개발 및 테스트용 인메모리 DB
     runtimeOnly 'org.postgresql:postgresql' // 프로덕션용 PostgreSQL
     
     // 암호화 관련 추가 의존성
@@ -79,6 +78,14 @@ dependencies {
 
     // AOP 관련 의존성
     implementation 'org.springframework.boot:spring-boot-starter-aop'
+
+    // Testcontainers
+    testImplementation("org.testcontainers:testcontainers:1.20.6")
+    testImplementation("org.testcontainers:junit-jupiter:1.20.6")
+    testImplementation("org.testcontainers:postgresql:1.20.6")
+    
+    // PostgreSQL - 이미 존재하는 의존성이므로 버전만 업데이트
+    runtimeOnly("org.postgresql:postgresql:42.7.5")
 }
 
 dependencyManagement {
