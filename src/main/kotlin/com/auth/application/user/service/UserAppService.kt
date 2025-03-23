@@ -4,6 +4,7 @@ import com.auth.domain.user.model.User
 import com.auth.domain.user.service.UserDomainService
 import com.auth.domain.user.value.Email
 import com.auth.domain.user.value.Password
+import com.auth.exception.InvalidCredentialsException
 import com.auth.exception.UserNotFoundException
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -39,6 +40,39 @@ class UserAppService(
     ): User {
         return userDomainService.createUser(username, email, password, name, phoneNumber)
     }
+    /**
+     * 로그인 시 비밀번호·계정 상태 검증
+     * 
+     * @param usernameOrEmail 사용자명 또는 이메일
+     * @param rawPassword 평문 비밀번호
+     * @return 검증된 사용자 도메인 객체
+     * @throws InvalidCredentialsException 인증 실패 시(비밀번호 불일치, 계정 상태 문제 등)
+     */
+    @Transactional(readOnly = true)
+    fun validateLogin(usernameOrEmail: String, rawPassword: String): User = runCatching {
+        // 이메일 또는 사용자명으로 사용자 조회
+        val user = when {
+            '@' in usernameOrEmail -> userDomainService.findUserByEmail(Email(usernameOrEmail))
+            else -> userDomainService.findUserByUsername(usernameOrEmail)
+        }
+
+        // 비밀번호 검증
+        if (!user.password.matches(rawPassword)) {
+            throw InvalidCredentialsException("아이디 또는 비밀번호가 맞지 않습니다.")
+        }
+
+        // 계정 상태 검증 
+        user.takeIf { it.isLoginable() }
+            ?: throw InvalidCredentialsException("현재 로그인할 수 없는 상태입니다: ${user.status}")
+
+        user
+    }.getOrElse { e ->
+        when (e) {
+            is UserNotFoundException -> throw InvalidCredentialsException("아이디 또는 비밀번호가 맞지 않습니다.")
+            else -> throw e
+        }
+    }
+
 
     /**
      * ID로 사용자 조회
