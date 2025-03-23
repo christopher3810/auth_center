@@ -1,6 +1,6 @@
 package com.auth.unit.service
 
-import com.auth.application.user.service.UserAppService
+import com.auth.application.user.service.UserAccountAppService
 import com.auth.domain.user.model.User
 import com.auth.domain.user.service.UserDomainService
 import com.auth.domain.user.value.Email
@@ -25,7 +25,7 @@ class UserAppServiceTest : DescribeSpec({
     
     // 테스트 대상 및 의존성 정의
     val userDomainService = mockk<UserDomainService>()
-    val sut = UserAppService(userDomainService)  // SUT (System Under Test)
+    val sut = UserAccountAppService(userDomainService)  // SUT (System Under Test)
     
     // 테스트 데이터 준비
     val testUser = User(
