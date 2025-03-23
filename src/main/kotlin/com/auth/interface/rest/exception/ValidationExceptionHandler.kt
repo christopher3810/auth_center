@@ -46,21 +46,4 @@ class ValidationExceptionHandler {
         return ResponseEntity(errorResponse, HttpStatus.BAD_REQUEST)
     }
 
-    /**
-     * 유효성 검증 관련 IllegalArgumentException 예외 처리
-     */
-    @ExceptionHandler(IllegalArgumentException::class)
-    fun handleIllegalArgumentException(ex: IllegalArgumentException, request: WebRequest): ResponseEntity<ApiErrorResponse> {
-        logger.error(ex) { "잘못된 인자 전달" }
-        
-        val errorResponse = ApiErrorResponse(
-            timestamp = LocalDateTime.now(),
-            status = HttpStatus.BAD_REQUEST.value(),
-            error = HttpStatus.BAD_REQUEST.reasonPhrase,
-            message = ex.message ?: "잘못된 요청입니다.",
-            path = request.getDescription(false).replace("uri=", "")
-        )
-        
-        return ResponseEntity(errorResponse, HttpStatus.BAD_REQUEST)
-    }
 } 
