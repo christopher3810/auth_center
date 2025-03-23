@@ -1,4 +1,4 @@
-package com.auth.`interface`.rest.user.dto
+package com.auth.api.rest.dto.user
 
 import jakarta.validation.constraints.Email
 import jakarta.validation.constraints.NotBlank

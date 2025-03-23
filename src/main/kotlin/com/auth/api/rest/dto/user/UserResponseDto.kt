@@ -1,4 +1,4 @@
-package com.auth.`interface`.rest.user.dto
+package com.auth.api.rest.dto.user
 
 import com.auth.domain.user.model.User
 import com.fasterxml.jackson.annotation.JsonInclude

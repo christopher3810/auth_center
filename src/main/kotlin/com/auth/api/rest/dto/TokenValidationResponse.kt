@@ -1,4 +1,4 @@
-package com.auth.`interface`.rest.dto
+package com.auth.api.rest.dto
 
 /**
  * 토큰 검증 응답 DTO

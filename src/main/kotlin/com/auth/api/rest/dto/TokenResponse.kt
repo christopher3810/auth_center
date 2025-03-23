@@ -1,4 +1,4 @@
-package com.auth.`interface`.rest.dto
+package com.auth.api.rest.dto
 
 import com.auth.application.auth.dto.TokenDto
 
