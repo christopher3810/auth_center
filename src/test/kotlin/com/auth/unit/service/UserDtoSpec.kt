@@ -4,10 +4,10 @@ import com.auth.domain.user.model.User
 import com.auth.domain.user.value.Email
 import com.auth.domain.user.value.Password
 import com.auth.domain.user.value.UserStatus
-import com.auth.`interface`.rest.user.dto.UserDetailResponse
-import com.auth.`interface`.rest.user.dto.UserProfileResponse
-import com.auth.`interface`.rest.user.dto.UserRegistrationResponse
-import com.auth.`interface`.rest.user.dto.UserSummaryResponse
+import com.auth.api.rest.dto.user.UserDetailResponse
+import com.auth.api.rest.dto.user.UserProfileResponse
+import com.auth.api.rest.dto.user.UserRegistrationResponse
+import com.auth.api.rest.dto.user.UserSummaryResponse
 import io.kotest.core.spec.IsolationMode
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.collections.shouldContainExactly
