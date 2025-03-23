@@ -125,6 +125,40 @@ class ResetDatabaseTest {
 }
 ```
 
+### 1.6 kotest spring extension 사용하기
+
+> Spring extension 을 사용하지 않을시 트랜잭션이 안잡힐수 있음.
+
+#### 왜 트랜잭션이 잡히지 않는가?
+
+Kotest와 스프링의 트랜잭션 관리 연동
+JUnit4/5 + Spring 조합이라면 스프링이 @Test 메서드 시작 시점에 트랜잭션을 열고, 테스트가 끝나면 롤백하는 식으로 동작함.
+
+그러나 Kotest는 “스펙(DescribeSpec, BehaviorSpec 등)” 형태로 테스트를 구성하고, 이를 자체 실행 스케줄로 돌림.
+
+이때, 스프링의 @Transactional이 우리가 기대한 시점(각 it 또는 test)에 트랜잭션을 자동 열어주려면, Kotest와 스프링을 이어주는 Kotest 전용 Extension이 필요함.
+
+Kotest가 스프링 테스트 컨텍스트를 알아보고, 각 테스트마다 “트랜잭션 시작/종료”를 훅으로 호출해줄 방법이 있어야 함.
+
+#### 스레드·코루틴 환경 불일치
+스프링의 전통적인 트랜잭션 경계는 “스레드 로컬(ThreadLocal) 기반”임. 즉, 트랜잭션이 시작된 스레드와 DB 연동(persist)이 일어나는 스레드가 같아야 함.
+
+Kotest는 코루틴 디스패처를 통해 다른 스레드(또는 협력 스레드)에서 it 블록을 실행할 수 음.
+
+만약 @Transactional이 정상적으로 걸려도, 실제 테스트 로직이 동일 스레드에서 돌지 않는다면 “No EntityManager with actual transaction available for current thread” 오류가 질수 있음.
+
+@TestExecutionListeners만으론 부족함
+
+@TestExecutionListeners(mergeMode = MERGE_WITH_DEFAULTS)로 TransactionalTestExecutionListener 등을 끌고 들어온다 해도, 그것은 어디까지나 JUnit 중심의 라이프사이클을 가정함. 
+
+Kotest가 메서드 단위(@Test)로 안 돌아가면 제대로 훅을 타지 못할 수 있음.
+
+```kotlin
+override fun extensions() = listOf(SpringExtension)
+```
+
+잊지말고 추가할것.
+
 ## 2. TestContainer 현재 설정 구성
 
 ### 2.1 아키텍처 다이어그램
