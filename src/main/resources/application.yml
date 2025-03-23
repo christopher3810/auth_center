@@ -13,4 +13,6 @@ jwt:
 logging:
   level:
     com.auth: DEBUG
-    org.springframework.security: INFO 
+    org.springframework.security: INFO
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE 

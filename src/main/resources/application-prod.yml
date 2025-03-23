@@ -1,0 +1,25 @@
+# 운영용 DB 설정
+spring:
+  config:
+    import: "classpath:application.yml"
+  datasource:
+    url: jdbc:postgresql://localhost:5433/tars_admin
+    username: tars_admin
+    password: admin2447
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+        show_sql: true
+    open-in-view: false
+
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    enabled: false
+
