@@ -4,7 +4,7 @@ import java.time.Instant
 
 /**
  * 액세스 토큰 도메인 모델
- * 액세스 토큰은 RefreshToken과 달리 DB에 저장되지 않고 메모리상에서만 존재하는 값 객체입니다.
+ * 액세스 토큰은 RefreshToken과 달리 DB에 저장되지 않고 메모리상에서만 존재.
  */
 class AccessToken(
     val tokenValue: String,

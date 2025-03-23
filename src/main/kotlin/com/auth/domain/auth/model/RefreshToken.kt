@@ -6,11 +6,7 @@ import com.auth.domain.auth.event.TokenUsedEvent
 import java.time.LocalDateTime
 
 /**
- * 리프레시 토큰 도메인 모델 (비즈니스 로직용)
- * 모델링 문서 참고: "Refresh 토큰처럼 영속되어야 하는 경우 도메인 객체로 간주할 수 있습니다."
- * 
- * 주: DDD 원칙에 따라 도메인 모델 생성 책임은 Factory로 이동하고,
- * 도메인 모델은 비즈니스 로직에 집중합니다.
+ * 리프레시 토큰 도메인 모델
  */
 class RefreshToken(
     val id: Long = 0,

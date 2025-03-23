@@ -4,7 +4,7 @@ import java.time.Instant
 
 /**
  * 일회용 토큰 도메인 모델
- * 이메일 인증, 비밀번호 재설정 등의 목적으로 사용되는 단기 토큰입니다.
+ * 이메일 인증, 비밀번호 재설정 등의 목적으로 사용되는 단기 토큰.
  */
 class OneTimeToken(
     val tokenValue: String,

@@ -5,16 +5,7 @@ import com.auth.domain.user.value.Email
 import com.auth.domain.user.value.UserStatus
 
 /**
- * 사용자 도메인 리포지토리 인터페이스 도메인 객체의 영속성 추상화를 담당.
- *
- * 구현체는 인프라스트럭처 계층에 존재.
- *
- * 조회와 생성 책임 분리
- * Repository 는 순수하게 Entity 에 대한 CRUD 작업만 수행
- * 서비스 계층에서 Factory 를 통해 도메인 모델 변환
- *
- * Repository 는 단순히 영속성 메커니즘에 집중하고,
- * 비즈니스 로직과 관련된 예외 처리나 규칙 검증은 상위 계층(도메인 서비스)에서 수행
+ * 사용자 도메인 리포지토리 인터페이스 도메인 객체의 영속성 추상화.
  */
 interface UserRepository {
     

@@ -12,7 +12,6 @@ import java.util.Optional
 
 /**
  * 리프레시 토큰 도메인 서비스
- * 이렇게 조회와 생성 책임을 명확히 분리합니다.
  */
 @Service
 class RefreshTokenDomainService(
