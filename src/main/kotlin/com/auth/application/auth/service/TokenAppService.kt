@@ -8,6 +8,7 @@ import com.auth.domain.auth.model.TokenPurpose
 import com.auth.domain.auth.service.RefreshTokenDomainService
 import com.auth.domain.auth.service.TokenGenerator
 import com.auth.domain.auth.service.TokenValidator
+import com.auth.domain.user.model.User
 import com.auth.exception.InvalidTokenException
 import com.auth.exception.TokenExtractionException
 import com.auth.infrastructure.config.JwtConfig
@@ -39,18 +40,47 @@ class TokenAppService(
      */
     @Transactional
     fun generateTokens(userInfo: UserTokenInfo): TokenDto {
-        // 1. 액세스 토큰 생성
-        val accessToken = tokenGenerator.generateAccessTokenString(
+        return generateTokensInternal(
             subject = userInfo.email,
             userId = userInfo.id,
-            roles = userInfo.roles,
+            roles = userInfo.roles
+        )
+    }
+
+    /**
+     * User 도메인 객체로부터 액세스 토큰과 리프레시 토큰을 생성합니다.
+     * 리프레시 토큰은 데이터베이스에 저장됩니다.
+     */
+    @Transactional
+    fun generateTokens(user: User): TokenDto {
+        return generateTokensInternal(
+            subject = user.email.value,
+            userId = user.id,
+            roles = user.roles
+        )
+    }
+
+    /**
+     * 토큰 생성 내부 구현
+     * 액세스 토큰과 리프레시 토큰을 생성하고 TokenDto로 반환합니다.
+     */
+    private fun generateTokensInternal(
+        subject: String,
+        userId: Long,
+        roles: Set<String>
+    ): TokenDto {
+        // 1. 액세스 토큰 생성
+        val accessToken = tokenGenerator.generateAccessTokenString(
+            subject = subject,
+            userId = userId,
+            roles = roles,
             permissions = emptySet()
         )
         
         // 2. 리프레시 토큰 생성 및 저장
         val refreshToken = refreshTokenDomainService.generateRefreshToken(
-            subject = userInfo.email,
-            userId = userInfo.id
+            subject = subject,
+            userId = userId
         )
 
         // 3. TokenDto 반환
