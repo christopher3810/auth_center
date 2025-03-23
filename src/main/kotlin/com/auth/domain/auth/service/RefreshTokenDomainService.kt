@@ -26,10 +26,8 @@ class RefreshTokenDomainService(
      */
     @Transactional(readOnly = true)
     fun findByToken(token: String): Optional<RefreshToken> {
-        // 1. Entity 조회
         val tokenEntityOpt = refreshTokenRepository.findByToken(token)
-        
-        // 2. Entity -> Model 변환 (Factory 사용)
+
         return tokenEntityOpt.map { RefreshTokenFactory.createFromEntity(it) }
     }
     
@@ -38,10 +36,8 @@ class RefreshTokenDomainService(
      */
     @Transactional(readOnly = true)
     fun findByUserId(userId: Long): List<RefreshToken> {
-        // 1. Entity 목록 조회
         val tokenEntities = refreshTokenRepository.findByUserId(userId)
-        
-        // 2. Entity -> Model 변환 (Factory 사용)
+
         return tokenEntities.map { RefreshTokenFactory.createFromEntity(it) }
     }
     
@@ -50,11 +46,9 @@ class RefreshTokenDomainService(
      */
     @Transactional(readOnly = true)
     fun findValidTokensByUserId(userId: Long): List<RefreshToken> {
-        // 1. Entity 목록 조회
         val currentTime = LocalDateTime.now()
         val tokenEntities = refreshTokenRepository.findByUserIdAndValidTrue(userId, currentTime)
-        
-        // 2. Entity -> Model 변환 (Factory 사용)
+
         return tokenEntities.map { RefreshTokenFactory.createFromEntity(it) }
     }
     
@@ -68,18 +62,15 @@ class RefreshTokenDomainService(
      */
     @Transactional
     fun generateRefreshToken(subject: String, userId: Long): RefreshToken {
-        // 1. 인프라 계층에 토큰 문자열 생성 요청
         val tokenValue = tokenGenerator.generateRefreshTokenString(subject, userId)
-        
-        // 2. 도메인 모델 생성 (Factory 사용)
+
         val refreshTokenModel = RefreshTokenFactory.createToken(
             token = tokenValue,
             userId = userId,
             userEmail = subject,
             expiryTimeInMinutes = getRefreshTokenExpiryInMinutes()
         )
-        
-        // 3. 도메인 모델 저장
+
         return saveToken(refreshTokenModel)
     }
     
@@ -102,15 +93,14 @@ class RefreshTokenDomainService(
         userEmail: String,
         expiryTimeInMinutes: Long
     ): RefreshToken {
-        // 1. Factory를 통해 도메인 모델 생성
+
         val refreshTokenModel = RefreshTokenFactory.createToken(
             token = token,
             userId = userId,
             userEmail = userEmail,
             expiryTimeInMinutes = expiryTimeInMinutes
         )
-        
-        // 2. 도메인 모델 저장
+
         return saveToken(refreshTokenModel)
     }
     
@@ -120,10 +110,7 @@ class RefreshTokenDomainService(
     @Transactional
     fun markTokenAsUsed(tokenValue: String): Optional<RefreshToken> {
         return findByToken(tokenValue).map { token ->
-            // 도메인 모델에 비즈니스 로직 적용
             token.markAsUsed()
-            
-            // 도메인 모델 저장
             saveToken(token)
         }
     }
@@ -134,10 +121,7 @@ class RefreshTokenDomainService(
     @Transactional
     fun revokeToken(tokenValue: String): Optional<RefreshToken> {
         return findByToken(tokenValue).map { token ->
-            // 도메인 모델에 비즈니스 로직 적용
             token.revoke()
-            
-            // 도메인 모델 저장
             saveToken(token)
         }
     }
@@ -172,14 +156,11 @@ class RefreshTokenDomainService(
             val existingEntity = refreshTokenRepository.findById(refreshToken.id)
                 .orElseThrow { IllegalArgumentException("존재하지 않는 토큰 ID: ${refreshToken.id}") }
             
-            // Entity 업데이트
+            //revoke 처리후 저장, 추후 배치처리로 시간이 지난 값을 지운다. 감사 로그용.
             RefreshTokenFactory.updateEntity(existingEntity, refreshToken)
         }
-        
-        // 2. Entity 저장
+
         val savedEntity = refreshTokenRepository.save(tokenEntity)
-        
-        // 3. 저장된 Entity -> 도메인 모델 변환 (Factory 사용)
         return RefreshTokenFactory.createFromEntity(savedEntity)
     }
     
@@ -188,9 +169,7 @@ class RefreshTokenDomainService(
      */
     @Transactional
     fun deleteToken(refreshToken: RefreshToken) {
-        // 1. ID로 엔티티 조회
         refreshTokenRepository.findById(refreshToken.id).ifPresent { entity ->
-            // 2. 엔티티 삭제
             refreshTokenRepository.delete(entity)
         }
     }

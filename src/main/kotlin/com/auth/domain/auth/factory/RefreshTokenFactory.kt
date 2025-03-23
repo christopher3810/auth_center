@@ -8,10 +8,6 @@ import java.time.LocalDateTime
 
 /**
  * 리프레시 토큰 도메인 팩토리
- *
- * Eric Evans DDD 원칙에 따른 Factory 패턴 구현:
- * "생성 과정이 복잡하거나 생성자가 의도를 명확히 표현하지 못하는 경우, 
- * 또는 도메인 개체 생성 시 규칙을 지켜야 할 때 팩토리가 필요합니다."
  */
 @Component
 class RefreshTokenFactory {
