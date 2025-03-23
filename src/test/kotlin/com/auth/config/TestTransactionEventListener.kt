@@ -2,7 +2,6 @@ package com.auth.config
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.test.context.TestContext
-import org.springframework.test.context.TestExecutionListener
 import org.springframework.test.context.support.AbstractTestExecutionListener
 import org.springframework.transaction.PlatformTransactionManager
 import org.springframework.transaction.support.TransactionTemplate

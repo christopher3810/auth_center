@@ -7,7 +7,7 @@ object PostgresqlTestContainer {
     private const val DATABASE_NAME = "testdb"
     private const val USERNAME = "test"
     private const val PASSWORD = "test"
-    
+
     val instance: PostgreSQLContainer<*> by lazy {
         PostgreSQLContainer(DockerImageName.parse("postgres:16-alpine")).apply {
             withDatabaseName(DATABASE_NAME)
@@ -25,6 +25,7 @@ object PostgresqlTestContainer {
         }
     }
 
+    //컨테이너 리셋.
     fun reset() {
         if (instance.isRunning) {
             try {
@@ -39,7 +40,7 @@ object PostgresqlTestContainer {
                     )
                 }
                 // 초기화 스크립트 경로를 상수로 관리
-                val initScriptPath = "/testinitscript.sql"
+                val initScriptPath = "sql/init.sql"
                 val result = instance.execInContainer("psql", "-U", USERNAME, "-d", DATABASE_NAME, "-f", initScriptPath)
                 if (result.exitCode != 0) {
                     throw IllegalStateException("Database reset failed: ${result.stderr}")
@@ -51,4 +52,4 @@ object PostgresqlTestContainer {
         }
     }
 
-} 
+}
