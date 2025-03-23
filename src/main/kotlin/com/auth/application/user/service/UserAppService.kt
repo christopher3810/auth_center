@@ -6,6 +6,7 @@ import com.auth.domain.user.value.Email
 import com.auth.domain.user.value.Password
 import com.auth.exception.InvalidCredentialsException
 import com.auth.exception.UserNotFoundException
+import com.vito.common.util.patternValidator.PatternValidator
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -52,7 +53,7 @@ class UserAppService(
     fun validateLogin(usernameOrEmail: String, rawPassword: String): User = runCatching {
         // 이메일 또는 사용자명으로 사용자 조회
         val user = when {
-            '@' in usernameOrEmail -> userDomainService.findUserByEmail(Email(usernameOrEmail))
+            PatternValidator.isValidEmail(usernameOrEmail) -> userDomainService.findUserByEmail(Email(usernameOrEmail))
             else -> userDomainService.findUserByUsername(usernameOrEmail)
         }
 
