@@ -23,3 +23,7 @@ springdoc:
   swagger-ui:
     enabled: false
 
+security:
+  permit-all-patterns:
+    - "/api/users/v1/register"
+    - "/api/users/v1/login"

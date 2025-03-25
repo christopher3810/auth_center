@@ -22,3 +22,8 @@ springdoc:
   swagger-ui:
     enabled: true
 
+security:
+  permit-all-patterns:
+    - "/api/**"
+    - "/swagger-ui/**"
+    - "/v3/api-docs/**"
