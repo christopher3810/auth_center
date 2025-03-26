@@ -17,8 +17,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 @EnableMethodSecurity
 class SecurityConfig(
-    private val tokenAppService: TokenAppService,
-    private val customUserDetailsService: CustomUserDetailsService
+    private val tokenAppService: TokenAppService
 ) {
     /**
      * 비밀번호 암호화를 위한 PasswordEncoder 등록
@@ -48,7 +47,7 @@ class SecurityConfig(
             }
             // UsernamePasswordAuthenticationFilter 앞단에서 JWT 필터를 실행하여 인증 처리
             .addFilterBefore(
-                JwtAuthenticationFilter(tokenAppService, customUserDetailsService),
+                JwtAuthenticationFilter(tokenAppService),
                 UsernamePasswordAuthenticationFilter::class.java
             )
 
