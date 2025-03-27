@@ -101,27 +101,24 @@ class TokenAppService(
      */
     @Transactional
     fun refreshAccessToken(refreshTokenValue: String, issueNewRefreshToken: Boolean = false): TokenDto {
-        // 1. 리프레시 토큰 유효성 검증
+        //token 포맷에 대한 유효성 검증
         if (!tokenValidator.validateToken(refreshTokenValue)) {
             throw InvalidTokenException("Invalid refresh token")
         }
-        
-        // 2. 도메인 모델 조회
+
         val refreshTokenModel = refreshTokenDomainService.findByToken(refreshTokenValue)
             .orElseThrow { InvalidTokenException("Refresh token not found in the system") }
-        
-        // 3. 도메인 모델 유효성 검증
+
+        //만료, 사용, 차단 여부 확인
         if (!refreshTokenModel.isValid()) {
             throw InvalidTokenException("Refresh token is no longer valid")
         }
-        
-        // 4. 토큰에서 사용자 정보 추출
+
         val subject = tokenValidator.getSubject(refreshTokenValue)
         val userId = tokenValidator.getUserId(refreshTokenValue) 
             ?: throw TokenExtractionException("User ID not found in token")
         val roles = tokenValidator.getRoles(refreshTokenValue)
-        
-        // 5. 새 액세스 토큰 생성
+
         val newAccessToken = tokenGenerator.generateAccessTokenString(
             subject = subject,
             userId = userId,
@@ -129,17 +126,15 @@ class TokenAppService(
             permissions = emptySet()
         )
 
-        // 6. 현재 리프레시 토큰을 사용됨으로 표시
         refreshTokenDomainService.markTokenAsUsed(refreshTokenValue)
-        
-        // 7. 새 리프레시 토큰 발급 (요청된 경우)
+
+        //TODO : token rotation 방식으로 시간에 맞춰서 값 정하고, issueNewRefreshToken 값 제거
         val finalRefreshToken: RefreshToken = if (issueNewRefreshToken) {
             refreshTokenDomainService.generateRefreshToken(subject, userId)
         } else {
             refreshTokenModel
         }
-        
-        // 8. TokenDto 반환
+
         return TokenDto(
             accessToken = newAccessToken,
             refreshToken = finalRefreshToken.token,
