@@ -1,5 +1,6 @@
-package com.auth.api.security
+package com.auth.unit.api.security
 
+import com.auth.api.security.SecurityUtils
 import com.auth.application.auth.dto.UserTokenInfo
 import io.kotest.core.spec.IsolationMode
 import io.kotest.core.spec.style.DescribeSpec
@@ -34,7 +35,7 @@ class SecurityUtilsTest : DescribeSpec({
             )
             
             beforeTest {
-                sut.setupAuthentication(userInfo)
+                SecurityUtils.setupAuthentication(userInfo)
             }
             
             it("SecurityContext에 인증 정보를 설정해야 한다") {
@@ -64,7 +65,7 @@ class SecurityUtilsTest : DescribeSpec({
             )
             
             beforeTest {
-                sut.setupAdminAuthentication(userInfo)
+                SecurityUtils.setupAdminAuthentication(userInfo)
             }
             
             it("사용자 역할과 관리자 역할이 모두 포함되어야 한다") {
@@ -84,7 +85,7 @@ class SecurityUtilsTest : DescribeSpec({
             )
             
             beforeTest {
-                sut.setupReadOnlyAuthentication(userInfo)
+                SecurityUtils.setupReadOnlyAuthentication(userInfo)
             }
             
             it("원래 역할과 상관없이 READER 역할만 가져야 한다") {
@@ -105,7 +106,7 @@ class SecurityUtilsTest : DescribeSpec({
             val customRoles = setOf("MANAGER", "AUDITOR")
             
             beforeTest {
-                sut.setupAuthenticationWithRoles(userInfo, customRoles)
+                SecurityUtils.setupAuthenticationWithRoles(userInfo, customRoles)
             }
             
             it("원래 역할과 상관없이 커스텀 역할만 가져야 한다") {
@@ -125,9 +126,9 @@ class SecurityUtilsTest : DescribeSpec({
             )
             
             beforeTest {
-                sut.setupAuthentication(userInfo)
+                SecurityUtils.setupAuthentication(userInfo)
 
-                sut.clearSecurityContext()
+                SecurityUtils.clearSecurityContext()
             }
             
             it("SecurityContext에서 인증 정보가 제거되어야 한다") {
@@ -146,11 +147,11 @@ class SecurityUtilsTest : DescribeSpec({
                 )
                 
                 beforeTest {
-                    sut.setupAuthentication(userInfo)
+                    SecurityUtils.setupAuthentication(userInfo)
                 }
                 
                 it("true를 반환해야 한다") {
-                    sut.isAuthenticated().shouldBe(true)
+                    SecurityUtils.isAuthenticated().shouldBe(true)
                 }
             }
             
@@ -160,7 +161,7 @@ class SecurityUtilsTest : DescribeSpec({
                 }
                 
                 it("false를 반환해야 한다") {
-                    sut.isAuthenticated().shouldBe(false)
+                    SecurityUtils.isAuthenticated().shouldBe(false)
                 }
             }
         }
@@ -174,7 +175,7 @@ class SecurityUtilsTest : DescribeSpec({
             )
             
             beforeTest {
-                sut.setupAuthentication(userInfo)
+                SecurityUtils.setupAuthentication(userInfo)
             }
             
             it("ROLE_ 접두사를 자동으로 추가해야 한다") {
@@ -194,7 +195,7 @@ class SecurityUtilsTest : DescribeSpec({
             )
             
             beforeTest {
-                sut.setupAuthentication(userInfo)
+                SecurityUtils.setupAuthentication(userInfo)
             }
             
             it("접두사를 중복해서 추가하지 않아야 한다") {

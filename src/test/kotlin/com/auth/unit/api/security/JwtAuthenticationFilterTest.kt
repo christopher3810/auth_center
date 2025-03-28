@@ -1,5 +1,7 @@
-package com.auth.api.security
+package com.auth.unit.api.security
 
+import com.auth.api.security.JwtAuthenticationFilter
+import com.auth.api.security.SecurityUtils
 import com.auth.application.auth.dto.UserTokenInfo
 import com.auth.application.auth.service.TokenAppService
 import io.kotest.core.spec.IsolationMode

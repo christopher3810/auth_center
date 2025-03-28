@@ -1,13 +1,11 @@
-package com.auth.domain.user.factory
+package com.auth.unit.domain.user.factory
 
+import com.auth.domain.user.factory.UserFactory
 import com.auth.domain.user.model.User
 import com.auth.domain.user.value.Email
-import com.auth.domain.user.value.Password
 import com.auth.domain.user.value.UserStatus
 import io.kotest.core.spec.IsolationMode
 import io.kotest.core.spec.style.DescribeSpec
-import io.kotest.core.spec.style.FunSpec
-import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 

@@ -1,7 +1,9 @@
-package com.auth.domain.auth.service
+package com.auth.unit.domain.auth.service
 
 import com.auth.domain.auth.entity.RefreshTokenEntity
 import com.auth.domain.auth.repository.RefreshTokenRepository
+import com.auth.domain.auth.service.RefreshTokenDomainService
+import com.auth.domain.auth.service.TokenGenerator
 import com.auth.exception.InvalidTokenException
 import com.auth.infrastructure.audit.Traceable
 import com.auth.infrastructure.config.JwtConfig

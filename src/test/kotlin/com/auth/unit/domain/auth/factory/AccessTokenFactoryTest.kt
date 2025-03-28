@@ -1,5 +1,6 @@
-package com.auth.domain.auth.factory
+package com.auth.unit.domain.auth.factory
 
+import com.auth.domain.auth.factory.AccessTokenFactory
 import com.auth.domain.auth.model.AccessToken
 import io.kotest.core.spec.IsolationMode
 import io.kotest.core.spec.style.DescribeSpec

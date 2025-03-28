@@ -1,6 +1,7 @@
-package com.auth.domain.auth.factory
+package com.auth.unit.domain.auth.factory
 
 import com.auth.domain.auth.entity.RefreshTokenEntity
+import com.auth.domain.auth.factory.RefreshTokenFactory
 import com.auth.domain.auth.model.RefreshToken
 import com.auth.infrastructure.audit.Traceable
 import io.kotest.core.spec.IsolationMode
@@ -23,7 +24,7 @@ class RefreshTokenFactoryTest : DescribeSpec({
 
         context("새 리프레시 토큰을 생성할 때") {
             it("주어진 입력 값으로 RefreshToken 도메인 모델을 생성해야 한다") {
-                val refreshToken: RefreshToken = sut.createToken(
+                val refreshToken: RefreshToken = RefreshTokenFactory.createToken(
                     token = "sample.refresh.token",
                     userId = userId,
                     userEmail = subject,
@@ -57,7 +58,7 @@ class RefreshTokenFactoryTest : DescribeSpec({
                     revoked = false,
                     traceable = Traceable().apply { createdAt = now }
                 )
-                val refreshToken = sut.createFromEntity(entity)
+                val refreshToken = RefreshTokenFactory.createFromEntity(entity)
                 refreshToken.id shouldBe 10L
                 refreshToken.token shouldBe "entity.token"
                 refreshToken.userId shouldBe userId
