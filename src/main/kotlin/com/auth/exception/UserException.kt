@@ -18,6 +18,8 @@ class UserNotFoundException private constructor(
             UserNotFoundException("사용자를 찾을 수 없습니다: username - $username", cause)
     }
 }
+class UserAccountDeactivatedException(message: String, cause: Throwable? = null) :
+    UserException("비활성화된 계정입니다: $message", cause)
 
 class InvalidUserInput(message: String, cause: Throwable? = null) :
     UserException("잘못된 입력: $message", cause)
