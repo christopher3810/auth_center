@@ -10,9 +10,14 @@ import java.util.Optional
 interface RefreshTokenRepository {
 
     /**
+     * ID로 토큰 엔티티 찾기
+     */
+    fun findById(id: Long): RefreshTokenEntity?
+
+    /**
      * 토큰 값으로 리프레시 토큰 엔티티 찾기
      */
-    fun findByToken(token: String): Optional<RefreshTokenEntity>
+    fun findByToken(token: String): RefreshTokenEntity?
 
     /**
      * 사용자 ID로 리프레시 토큰 엔티티 찾기
@@ -43,9 +48,4 @@ interface RefreshTokenRepository {
      * 토큰 엔티티 삭제
      */
     fun delete(refreshTokenEntity: RefreshTokenEntity)
-    
-    /**
-     * ID로 토큰 엔티티 찾기
-     */
-    fun findById(id: Long): Optional<RefreshTokenEntity>
 } 

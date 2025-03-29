@@ -7,7 +7,6 @@ import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
 import org.springframework.stereotype.Repository
 import java.time.LocalDateTime
-import java.util.Optional
 
 @Repository
 interface RefreshTokenJpaRepository : JpaRepository<RefreshTokenEntity, Long> {
@@ -15,7 +14,7 @@ interface RefreshTokenJpaRepository : JpaRepository<RefreshTokenEntity, Long> {
     /**
      * 토큰 값으로 리프레시 토큰 찾기
      */
-    fun findByToken(token: String): Optional<RefreshTokenEntity>
+    fun findByToken(token: String): RefreshTokenEntity?
 
     /**
      * 사용자 ID로 리프레시 토큰 찾기
