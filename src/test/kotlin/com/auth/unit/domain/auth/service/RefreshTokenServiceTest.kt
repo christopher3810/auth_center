@@ -36,7 +36,6 @@ class RefreshTokenServiceTest : DescribeSpec({
 
         context("새 리프레시 토큰 생성 시") {
             it("정상적인 사용자 정보가 주어지면 새 토큰을 생성하여 반환해야 한다") {
-                // Given
                 val userId = 1L
                 val email = "test@example.com"
                 val tokenString = "generated_refresh_token"
@@ -154,14 +153,12 @@ class RefreshTokenServiceTest : DescribeSpec({
         }
 
         context("토큰 생성 시 예외 상황") {
-            it("유효하지 않은 토큰 문자열로 조회 시 예외가 발생해야 한다") {
+            it("유효하지 않은 토큰 문자열로 조회 시 null 을 반환해야 한다.") {
                 val invalidToken = "non_existing_token"
                 every { repository.findByToken(invalidToken) } returns null
 
-                val exception = shouldThrow<InvalidTokenException> {
-                    sut.findByToken(invalidToken)
-                }
-                exception.message shouldBe "Token not found"
+                val findByToken = sut.findByToken(invalidToken)
+                findByToken shouldBe null
             }
         }
     }
