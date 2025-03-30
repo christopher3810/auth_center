@@ -110,7 +110,9 @@ class TokenAppService(
             throw InvalidTokenException("리프레시 토큰이 이미 사용되었거나 만료되었습니다")
         }
 
-        val (subject, userId, roles) = extractUserInfoFromToken(refreshTokenValue)
+        val subject = tokenValidator.getSubject(refreshTokenValue)
+        val userId = tokenValidator.getUserId(refreshTokenValue)
+            ?: throw TokenExtractionException("토큰에서 사용자 ID를 추출할 수 없습니다")
 
         val user = validateUserAndGetLatestInfo(userId)
 
@@ -120,18 +122,6 @@ class TokenAppService(
             roles = user.roles,
             oldRefreshToken = refreshTokenValue
         )
-    }
-    
-    /**
-     * 토큰에서 사용자 정보를 추출하는 헬퍼 메서드
-     */
-    private fun extractUserInfoFromToken(token: String): Triple<String, Long, Set<String>> {
-        val subject = tokenValidator.getSubject(token)
-        val userId = tokenValidator.getUserId(token)
-            ?: throw TokenExtractionException("토큰에서 사용자 ID를 추출할 수 없습니다")
-        val roles = tokenValidator.getRoles(token)
-        
-        return Triple(subject, userId, roles)
     }
     
     /**
