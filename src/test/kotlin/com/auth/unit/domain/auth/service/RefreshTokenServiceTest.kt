@@ -54,7 +54,7 @@ class RefreshTokenServiceTest : DescribeSpec({
                     revoked = false,
                     traceable = Traceable().apply { createdAt = now }
                 )
-                every { repository.findByToken(tokenString) } returns Optional.empty()
+                every { repository.findByToken(tokenString) } returns null
                 every { repository.save(any()) } answers { fakeEntity }
 
                 val result = sut.generateRefreshToken(email, userId)
@@ -99,13 +99,12 @@ class RefreshTokenServiceTest : DescribeSpec({
                     traceable = fakeEntity.traceable
                 )
                 
-                every { repository.findByToken(tokenString) } returns Optional.of(fakeEntity)
+                every { repository.findByToken(tokenString) } returns fakeEntity
                 every { repository.save(any()) } answers { updatedEntity }
-                every { repository.findById(any()) } returns Optional.of(fakeEntity)
+                every { repository.findById(any()) } returns fakeEntity
                 val resultOpt = sut.markTokenAsUsed(tokenString)
 
-                resultOpt.isPresent shouldBe true
-                resultOpt.get().used shouldBe true
+                resultOpt?.used shouldBe true
             }
 
             it("토큰 차단 처리 후 상태가 '차단됨'으로 변경되어야 한다") {
@@ -135,13 +134,12 @@ class RefreshTokenServiceTest : DescribeSpec({
                     traceable = fakeEntity.traceable
                 )
                 
-                every { repository.findByToken(tokenString) } returns Optional.of(fakeEntity)
+                every { repository.findByToken(tokenString) } returns fakeEntity
                 every { repository.save(any()) } answers { revokedEntity }
-                every { repository.findById(any()) } returns Optional.of(fakeEntity)
+                every { repository.findById(any()) } returns fakeEntity
                 val resultOpt = sut.revokeToken(tokenString)
 
-                resultOpt.isPresent shouldBe true
-                resultOpt.get().revoked shouldBe true
+                resultOpt?.revoked shouldBe true
             }
         }
 
@@ -158,10 +156,10 @@ class RefreshTokenServiceTest : DescribeSpec({
         context("토큰 생성 시 예외 상황") {
             it("유효하지 않은 토큰 문자열로 조회 시 예외가 발생해야 한다") {
                 val invalidToken = "non_existing_token"
-                every { repository.findByToken(invalidToken) } returns Optional.empty()
+                every { repository.findByToken(invalidToken) } returns null
 
                 val exception = shouldThrow<InvalidTokenException> {
-                    sut.findByToken(invalidToken).orElseThrow { InvalidTokenException("Token not found") }
+                    sut.findByToken(invalidToken)
                 }
                 exception.message shouldBe "Token not found"
             }

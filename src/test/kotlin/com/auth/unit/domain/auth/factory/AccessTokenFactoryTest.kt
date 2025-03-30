@@ -11,12 +11,12 @@ class AccessTokenFactoryTest : DescribeSpec({
 
     isolationMode = IsolationMode.InstancePerLeaf
 
-    describe("AccessTokenFactory는") {
-        val sut = AccessTokenFactory() // SUT: System Under Test
+    describe("AccessTokenFactory 는") {
+        val sut = AccessTokenFactory()
         val tokenValue = "sample.access.token"
         val userId = 1L
         val subject = "user@example.com"
-        val validityInSeconds = 3600L // 1시간
+        val validityInSeconds = 3600L
         val roles = setOf("ROLE_USER", "ROLE_ADMIN")
         val permissions = setOf("READ", "WRITE")
 
