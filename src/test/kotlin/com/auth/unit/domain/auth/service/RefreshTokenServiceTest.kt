@@ -1,6 +1,8 @@
 package com.auth.unit.domain.auth.service
 
 import com.auth.domain.auth.entity.RefreshTokenEntity
+import com.auth.domain.auth.factory.RefreshTokenFactory
+import com.auth.domain.auth.model.RefreshToken
 import com.auth.domain.auth.repository.RefreshTokenRepository
 import com.auth.domain.auth.service.RefreshTokenDomainService
 import com.auth.domain.auth.service.TokenGenerator
@@ -11,11 +13,9 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.IsolationMode
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
-import io.mockk.every
-import io.mockk.mockk
-import io.mockk.spyk
-import io.mockk.verify
+import io.mockk.*
 import java.time.LocalDateTime
+import java.time.ZoneId
 import java.util.*
 
 class RefreshTokenServiceTest : DescribeSpec({
@@ -35,26 +35,42 @@ class RefreshTokenServiceTest : DescribeSpec({
     describe("RefreshTokenService는") {
 
         context("새 리프레시 토큰 생성 시") {
-            it("정상적인 사용자 정보가 주어지면 새 토큰을 생성하여 반환해야 한다") {
-                val userId = 1L
-                val email = "test@example.com"
-                val tokenString = "generated_refresh_token"
-                every { tokenGenerator.generateRefreshTokenString(email, userId) } returns tokenString
+            mockkObject(RefreshTokenFactory.Companion)
+            val userId = 1L
+            val email = "test@example.com"
+            val tokenString = "generated_refresh_token"
+            every { tokenGenerator.generateRefreshTokenString(email, userId) } returns tokenString
 
-                val now = LocalDateTime.now()
-                val expiryDate = now.plusMinutes(jwtConfig.refreshTokenValidityInSeconds / 60)
-                val fakeEntity = RefreshTokenEntity(
-                    id = 100L,
-                    token = tokenString,
-                    userId = userId,
-                    userEmail = email,
-                    expiryDate = expiryDate,
-                    used = false,
-                    revoked = false,
-                    traceable = Traceable().apply { createdAt = now }
-                )
-                every { repository.findByToken(tokenString) } returns null
-                every { repository.save(any()) } answers { fakeEntity }
+            val now = LocalDateTime.now()
+            val expiryDate = now.plusMinutes(jwtConfig.refreshTokenValidityInSeconds / 60)
+
+            val fakeEntity = RefreshTokenEntity(
+                id = 100L,
+                token = tokenString,
+                userId = userId,
+                userEmail = email,
+                expiryDate = expiryDate,
+                used = false,
+                revoked = false,
+                traceable = Traceable().apply { createdAt = now }
+            )
+            val newRefreshTokenDomain = RefreshToken(
+                id = 100L,
+                token = tokenString,
+                userId = userId,
+                userEmail = email,
+                expiryDate = expiryDate,
+                used = false,
+                revoked = false,
+            )
+            every { RefreshTokenFactory.createToken(tokenString,userId, email,
+                jwtConfig.refreshTokenValidityInSeconds / 60) } returns newRefreshTokenDomain
+            every { RefreshTokenFactory.createEntity(newRefreshTokenDomain) } returns fakeEntity
+            every { repository.findById(newRefreshTokenDomain.id)} returns fakeEntity
+            every { RefreshTokenFactory.createFromEntity(fakeEntity) } returns newRefreshTokenDomain
+            every { repository.save(any()) } returns  fakeEntity
+
+            it("정상적인 사용자 정보가 주어지면 새 토큰을 생성하여 반환해야 한다") {
 
                 val result = sut.generateRefreshToken(email, userId)
 
@@ -97,7 +113,7 @@ class RefreshTokenServiceTest : DescribeSpec({
                     revoked = fakeEntity.revoked,
                     traceable = fakeEntity.traceable
                 )
-                
+
                 every { repository.findByToken(tokenString) } returns fakeEntity
                 every { repository.save(any()) } answers { updatedEntity }
                 every { repository.findById(any()) } returns fakeEntity
