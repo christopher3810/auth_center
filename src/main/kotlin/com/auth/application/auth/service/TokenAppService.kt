@@ -13,7 +13,6 @@ import com.auth.domain.user.value.UserStatus
 import com.auth.exception.InvalidTokenException
 import com.auth.exception.TokenExtractionException
 import com.auth.exception.UserAccountDeactivatedException
-import com.auth.exception.UserNotFoundException
 import com.auth.infrastructure.config.JwtConfig
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
