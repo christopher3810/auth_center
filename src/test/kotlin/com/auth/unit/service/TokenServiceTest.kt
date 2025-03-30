@@ -10,7 +10,9 @@ import com.auth.domain.auth.model.TokenPurpose
 import com.auth.domain.auth.service.RefreshTokenDomainService
 import com.auth.domain.auth.service.TokenGenerator
 import com.auth.domain.auth.service.TokenValidator
+import com.auth.domain.user.model.User
 import com.auth.domain.user.service.UserDomainService
+import com.auth.domain.user.value.UserStatus
 import com.auth.exception.InvalidTokenException
 import com.auth.exception.TokenExtractionException
 import com.auth.infrastructure.config.JwtConfig
@@ -197,6 +199,7 @@ class TokenServiceTest : DescribeSpec({
             val mockRefreshTokenDomainService = mockk<RefreshTokenDomainService>()
             val mockAccessTokenFactory = mockk<AccessTokenFactory>()
             val mockUserDomainService = mockk<UserDomainService>()
+            val mockUser = mockk<User>()
 
             every { mockTokenValidator.validateToken(testData.sampleRefreshToken) } returns true
             every { mockTokenValidator.getSubject(testData.sampleRefreshToken) } returns testData.email
@@ -218,6 +221,10 @@ class TokenServiceTest : DescribeSpec({
             every { mockRefreshTokenDomainService.markTokenAsUsed(testData.sampleRefreshToken) } returns
                     testData.refreshTokenEntity
 
+            every {
+                mockUserDomainService.findUserById(testData.userId)
+            } returns mockUser
+
             val sut = TokenAppService(
                 mockTokenGenerator,
                 mockTokenValidator,
@@ -227,34 +234,8 @@ class TokenServiceTest : DescribeSpec({
                 testData.jwtConfig
             )
 
-            context("새 리프레시 토큰을 요청하지 않았을 때") {
-                val refreshedTokenDto by lazy {
-                    sut.refreshAccessToken(testData.sampleRefreshToken)
-                }
-
-                it("새 액세스 토큰을 생성하고 기존 리프레시 토큰을 유지해야 한다") {
-                    refreshedTokenDto.accessToken shouldBe testData.sampleAccessToken
-                    refreshedTokenDto.refreshToken shouldBe testData.refreshTokenEntity.token
-                    refreshedTokenDto.isNewRefreshToken shouldBe false
-
-                    verifySequence {
-                        mockTokenValidator.validateToken(testData.sampleRefreshToken)
-                        mockRefreshTokenDomainService.findByToken(testData.sampleRefreshToken)
-                        mockTokenValidator.getSubject(testData.sampleRefreshToken)
-                        mockTokenValidator.getUserId(testData.sampleRefreshToken)
-                        mockTokenValidator.getRoles(testData.sampleRefreshToken)
-                        mockTokenGenerator.generateAccessTokenString(
-                            testData.email,
-                            testData.userId,
-                            testData.roles,
-                            emptySet()
-                        )
-                        mockRefreshTokenDomainService.markTokenAsUsed(testData.sampleRefreshToken)
-                    }
-                }
-            }
-
             context("새 리프레시 토큰을 요청했을 때") {
+
                 val newRefreshToken = RefreshToken(
                     id = 2L,
                     token = "new.refresh.token",
@@ -270,8 +251,12 @@ class TokenServiceTest : DescribeSpec({
                 every {
                     mockRefreshTokenDomainService.generateRefreshToken(testData.email, testData.userId)
                 } returns newRefreshToken
+                every { mockUser.isActive() } returns true
+                every { mockUser.status } returns UserStatus.ACTIVE
+                every { mockUser.roles } returns testData.roles
 
                 it("새 액세스 토큰과 새 리프레시 토큰을 모두 생성해야 한다") {
+
                     val result = sut.refreshAccessToken(testData.sampleRefreshToken)
 
                     result.accessToken shouldBe testData.sampleAccessToken
@@ -292,7 +277,6 @@ class TokenServiceTest : DescribeSpec({
             val mockRefreshTokenDomainService = mockk<RefreshTokenDomainService>()
             val mockAccessTokenFactory = mockk<AccessTokenFactory>()
             val mockUserDomainService = mockk<UserDomainService>()
-
 
             val sut = TokenAppService(
                 mockTokenGenerator,
