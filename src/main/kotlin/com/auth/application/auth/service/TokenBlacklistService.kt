@@ -6,6 +6,8 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
+private val logger = KotlinLogging.logger {}
+
 @Service
 class TokenBlacklistService(
     private val tokenValidator: TokenValidator,
@@ -115,5 +117,3 @@ class TokenBlacklistService(
         }
     }
 }
-
-private val logger = KotlinLogging.logger {}
