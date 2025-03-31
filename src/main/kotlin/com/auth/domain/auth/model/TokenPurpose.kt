@@ -10,7 +10,7 @@ enum class TokenPurpose(val value: String) {
     
     companion object {
         fun fromValue(value: String): TokenPurpose? {
-            return values().find { it.value == value }
+            return entries.find { purpose : TokenPurpose -> purpose.value == value }
         }
     }
 } 

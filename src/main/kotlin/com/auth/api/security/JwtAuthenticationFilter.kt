@@ -50,6 +50,6 @@ class JwtAuthenticationFilter(
      */
     private fun extractJwtToken(request: HttpServletRequest): String? =
         request.getHeader(AUTHORIZATION)
-            ?.takeIf { it.startsWith(BEARER_PREFIX) }
+            ?.takeIf { tokenHeader : String -> tokenHeader.startsWith(BEARER_PREFIX) }
             ?.substring(BEARER_PREFIX.length)
 }

@@ -13,7 +13,7 @@ enum class TokenClaim(val value: String) {
     
     companion object {
         fun fromValue(value: String): TokenClaim? {
-            return values().find { it.value == value }
+            return entries.find { claim : TokenClaim -> claim.value == value }
         }
     }
 } 

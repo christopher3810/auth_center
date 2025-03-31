@@ -11,7 +11,7 @@ enum class TokenType(val value: String) {
     
     companion object {
         fun fromValue(value: String): TokenType? {
-            return values().find { it.value == value }
+            return entries.find { tokenType: TokenType ->  tokenType.value == value }
         }
     }
 } 
