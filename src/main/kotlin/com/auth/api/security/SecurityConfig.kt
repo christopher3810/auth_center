@@ -7,6 +7,8 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
+import org.springframework.security.config.annotation.web.configurers.CsrfConfigurer
+import org.springframework.security.config.annotation.web.configurers.SessionManagementConfigurer
 import org.springframework.security.config.http.SessionCreationPolicy
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.crypto.password.PasswordEncoder
@@ -19,13 +21,9 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 class SecurityConfig(
     private val tokenAppService: TokenAppService
 ) {
-    /**
-     * 비밀번호 암호화를 위한 PasswordEncoder 등록
-     * - BCryptPasswordEncoder는 Spring Security에서 권장
-     */
+
     @Bean
     fun passwordEncoder(): PasswordEncoder {
-
         return BCryptPasswordEncoder()
     }
 
@@ -39,8 +37,9 @@ class SecurityConfig(
         @Value("\${security.permit-all-patterns:}") permitAllPatterns: List<String>
     ): SecurityFilterChain {
         http
-            .csrf { it.disable() }
-            .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
+            .csrf { csrfConfigurer : CsrfConfigurer<HttpSecurity> -> csrfConfigurer.disable() }
+            .sessionManagement { sessionConfigurer : SessionManagementConfigurer<HttpSecurity> ->
+                sessionConfigurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
             .authorizeHttpRequests { auth ->
                 auth.requestMatchers(*permitAllPatterns.toTypedArray()).permitAll()
                     .anyRequest().authenticated()
