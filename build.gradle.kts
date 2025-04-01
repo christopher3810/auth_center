@@ -82,10 +82,7 @@ dependencies {
     testImplementation("org.testcontainers:testcontainers:1.20.6")
     testImplementation("org.testcontainers:junit-jupiter:1.20.6")
     testImplementation("org.testcontainers:postgresql:1.20.6")
-
-    // PostgreSQL – 버전 업데이트
-    runtimeOnly("org.postgresql:postgresql:42.7.5")
-
+    
     // 추후 ksp annotation processor 필요시
     // ksp("com.example:processor:1.0.0")
 }
