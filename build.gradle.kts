@@ -5,7 +5,7 @@ plugins {
     id("org.jetbrains.kotlin.plugin.spring") version "2.1.20"
     id("org.jetbrains.kotlin.plugin.jpa") version "2.1.20"
     id("org.jlleitschuh.gradle.ktlint") version "12.1.2"
-    id("com.google.devtools.ksp") version "2.1.10-1.0.31"
+    id("com.google.devtools.ksp") version "2.1.20-1.0.32"
 }
 
 group = "com.auth"
