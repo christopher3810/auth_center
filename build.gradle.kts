@@ -1,10 +1,13 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jlleitschuh.gradle.ktlint.reporter.ReporterType
+
 plugins {
     id("org.springframework.boot") version "3.4.3"
     id("io.spring.dependency-management") version "1.1.7"
     id("org.jetbrains.kotlin.jvm") version "2.1.20"
     id("org.jetbrains.kotlin.plugin.spring") version "2.1.20"
     id("org.jetbrains.kotlin.plugin.jpa") version "2.1.20"
-    id("org.jlleitschuh.gradle.ktlint") version "12.1.2"
+    id("org.jlleitschuh.gradle.ktlint") version "12.2.0"
     id("com.google.devtools.ksp") version "2.1.20-1.0.32"
 }
 
@@ -87,6 +90,17 @@ dependencies {
     // ksp("com.example:processor:1.0.0")
 }
 
+ktlint {
+    version.set("1.5.0") // 1.4.1 아래 버전은 kotlin 2.0 이상 버전 이랑 충돌 이슈 있음.
+
+    reporters {
+        reporter(ReporterType.PLAIN) // 콘솔에 단순 텍스트 출력
+    }
+
+    // 콘솔 출력을 활성화
+    outputToConsole.set(true)
+}
+
 dependencyManagement {
     imports {
         mavenBom("org.springframework.cloud:spring-cloud-dependencies:${extra["springCloudVersion"]}")
@@ -94,12 +108,29 @@ dependencyManagement {
 }
 
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
-    kotlinOptions {
-        freeCompilerArgs = listOf("-Xjsr305=strict")
-        jvmTarget = "21"
+    compilerOptions {
+        freeCompilerArgs.add("-Xjsr305=strict")
+        jvmTarget.set(JvmTarget.JVM_21)
     }
+    incremental = true  // 증분 컴파일 활성화 - 변경된 파일만 컴파일
+    outputs.cacheIf { true }  // 컴파일 결과 캐싱으로 빌드 성능 향상
 }
 
-tasks.test {
+tasks.withType<Test> {
     useJUnitPlatform()
+    maxParallelForks = (Runtime.getRuntime().availableProcessors() / 2).coerceAtLeast(1)  // 병렬 테스트 실행
+    setForkEvery(500)  // 메모리 누수 방지를 위해 500개 테스트마다 새 JVM 프로세스 시작
+    reports.html.required = false  // HTML 리포트 활성화 여부
+    reports.junitXml.required = true  //XML 리포트 활성화 여부
+
+    systemProperty("kotest.framework.classpath.scanning.autoscan", "true")  // 자동 스캔으로 확장 감지
+    systemProperty("kotest.framework.parallelism", (Runtime.getRuntime().availableProcessors() / 2).coerceAtLeast(1).toString())  // Kotest 내부 병렬 처리
+}
+
+if (!project.hasProperty("prod")) {
+    tasks.withType<Test> {
+        filter {
+            excludeTestsMatching("*IntegrationTest") // prod 는 통테 제외
+        }
+    }
 }
