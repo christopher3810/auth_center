@@ -12,7 +12,9 @@ import io.kotest.extensions.spring.SpringExtension
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
-import io.mockk.*
+import io.mockk.clearAllMocks
+import io.mockk.every
+import io.mockk.mockk
 import jakarta.persistence.EntityManager
 import jakarta.servlet.http.HttpServletRequest
 import org.springframework.test.context.TestExecutionListeners
