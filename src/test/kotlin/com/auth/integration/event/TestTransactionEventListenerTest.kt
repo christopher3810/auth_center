@@ -21,7 +21,7 @@ import org.springframework.test.context.TestExecutionListeners
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener
 import org.springframework.web.context.request.RequestContextHolder
 import org.springframework.web.context.request.ServletRequestAttributes
-import java.util.*
+import java.util.UUID
 
 @IntegrationTest
 @TestExecutionListeners(
