@@ -10,7 +10,6 @@ import java.time.LocalDateTime
 
 @Repository
 interface RefreshTokenJpaRepository : JpaRepository<RefreshTokenEntity, Long> {
-
     /**
      * 토큰 값으로 리프레시 토큰 찾기
      */
@@ -24,10 +23,12 @@ interface RefreshTokenJpaRepository : JpaRepository<RefreshTokenEntity, Long> {
     /**
      * 사용자 ID로 유효한 리프레시 토큰 찾기
      */
-    @Query("SELECT r FROM RefreshTokenEntity r WHERE r.userId = :userId AND r.used = false AND r.revoked = false AND r.expiryDate > :currentTime")
+    @Query(
+        "SELECT r FROM RefreshTokenEntity r WHERE r.userId = :userId AND r.used = false AND r.revoked = false AND r.expiryDate > :currentTime",
+    )
     fun findValidTokensByUserId(
         @Param("userId") userId: Long,
-        @Param("currentTime") currentTime: LocalDateTime
+        @Param("currentTime") currentTime: LocalDateTime,
     ): List<RefreshTokenEntity>
 
     /**
@@ -35,12 +36,16 @@ interface RefreshTokenJpaRepository : JpaRepository<RefreshTokenEntity, Long> {
      */
     @Modifying
     @Query("UPDATE RefreshTokenEntity r SET r.revoked = true WHERE r.userId = :userId")
-    fun revokeAllUserTokens(@Param("userId") userId: Long): Int
+    fun revokeAllUserTokens(
+        @Param("userId") userId: Long,
+    ): Int
 
     /**
      * 만료된 토큰 삭제
      */
     @Modifying
     @Query("DELETE FROM RefreshTokenEntity r WHERE r.expiryDate < :now")
-    fun deleteAllExpiredTokens(@Param("now") now: LocalDateTime): Int
-} 
+    fun deleteAllExpiredTokens(
+        @Param("now") now: LocalDateTime,
+    ): Int
+}

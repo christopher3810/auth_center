@@ -9,7 +9,6 @@ import org.springframework.transaction.support.TransactionTemplate
 private val logger = KotlinLogging.logger {}
 
 class TestTransactionEventListener : AbstractTestExecutionListener() {
-
     override fun getOrder(): Int = 2000
 
     override fun beforeTestClass(testContext: TestContext) {
@@ -18,7 +17,7 @@ class TestTransactionEventListener : AbstractTestExecutionListener() {
 
     override fun afterTestClass(testContext: TestContext) {
         logger.info { "테스트 클래스 종료 및 롤백 시작: ${testContext.testClass.simpleName}" }
-        
+
         val transactionManager = testContext.applicationContext.getBean(PlatformTransactionManager::class.java)
         TransactionTemplate(transactionManager).execute { status ->
             status.setRollbackOnly()
@@ -34,4 +33,4 @@ class TestTransactionEventListener : AbstractTestExecutionListener() {
     override fun afterTestMethod(testContext: TestContext) {
         logger.info { "테스트 메소드 종료: ${testContext.testMethod.name}" }
     }
-} 
+}

@@ -17,24 +17,20 @@ class RefreshToken(
     var used: Boolean = false,
     var revoked: Boolean = false,
     val createdAt: LocalDateTime? = null,
-    val updatedAt: LocalDateTime? = null
+    val updatedAt: LocalDateTime? = null,
 ) {
     // 도메인 이벤트를 저장하는 리스트
     private val domainEvents = mutableListOf<TokenEvent>()
-    
+
     /**
      * 토큰이 만료되었는지 확인
      */
-    fun isExpired(): Boolean {
-        return LocalDateTime.now().isAfter(expiryDate)
-    }
+    fun isExpired(): Boolean = LocalDateTime.now().isAfter(expiryDate)
 
     /**
      * 토큰이 유효한지 확인 (만료되지 않고, 사용되지 않았으며, 차단되지 않음)
      */
-    fun isValid(): Boolean {
-        return !isExpired() && !used && !revoked
-    }
+    fun isValid(): Boolean = !isExpired() && !used && !revoked
 
     /**
      * 토큰 사용 처리
@@ -57,14 +53,14 @@ class RefreshToken(
         }
         return this
     }
-    
+
     /**
      * 이벤트 등록
      */
     fun registerEvent(event: TokenEvent) {
         domainEvents.add(event)
     }
-    
+
     /**
      * 도메인 이벤트 조회 및 소비
      */
@@ -73,4 +69,4 @@ class RefreshToken(
         domainEvents.clear()
         return events
     }
-} 
+}

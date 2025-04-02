@@ -13,15 +13,13 @@ class AccessToken(
     val issuedAt: Instant,
     val expiresAt: Instant,
     val roles: Set<String> = setOf(),
-    val permissions: Set<String> = setOf()
+    val permissions: Set<String> = setOf(),
 ) {
     /**
      * 토큰이 만료되었는지 확인
      */
-    fun isExpired(): Boolean {
-        return Instant.now().isAfter(expiresAt)
-    }
-    
+    fun isExpired(): Boolean = Instant.now().isAfter(expiresAt)
+
     /**
      * 토큰의 남은 유효 시간(초)
      */
@@ -29,18 +27,14 @@ class AccessToken(
         if (isExpired()) return 0
         return expiresAt.epochSecond - Instant.now().epochSecond
     }
-    
+
     /**
      * 특정 역할을 가지는지 확인
      */
-    fun hasRole(role: String): Boolean {
-        return roles.contains(role)
-    }
-    
+    fun hasRole(role: String): Boolean = roles.contains(role)
+
     /**
      * 특정 권한을 가지는지 확인
      */
-    fun hasPermission(permission: String): Boolean {
-        return permissions.contains(permission)
-    }
-} 
+    fun hasPermission(permission: String): Boolean = permissions.contains(permission)
+}

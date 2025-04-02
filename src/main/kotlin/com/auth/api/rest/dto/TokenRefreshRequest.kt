@@ -10,5 +10,5 @@ import jakarta.validation.constraints.NotBlank
 data class TokenRefreshRequest(
     @Schema(description = "리프레시 토큰 값", example = "long-refresh-token-value-here")
     @field:NotBlank(message = "리프레시 토큰은 필수입니다.")
-    val refreshToken: String
-) 
+    val refreshToken: String,
+)

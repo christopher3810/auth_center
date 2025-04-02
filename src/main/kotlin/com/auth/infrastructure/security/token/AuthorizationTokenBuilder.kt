@@ -14,9 +14,8 @@ internal class AuthorizationTokenBuilder(
     expirationMs: Long,
     key: SecretKey,
     private val roles: Set<String>,
-    private val permissions: Set<String>
+    private val permissions: Set<String>,
 ) : AbstractTokenBuilder(subject, expirationMs, key) {
-
     override fun customizeBuild(builder: JwtBuilder) {
         builder.apply {
             claim(TokenClaim.TYPE.value, TokenType.AUTHORIZATION.value)
@@ -25,12 +24,11 @@ internal class AuthorizationTokenBuilder(
                 roles.isNotEmpty() -> claim(TokenClaim.ROLES.value, roles.joinToString(","))
                 else -> claim(TokenClaim.ROLES.value, "")
             }
-            
+
             when {
                 permissions.isNotEmpty() -> claim(TokenClaim.PERMISSIONS.value, permissions.joinToString(","))
                 else -> claim(TokenClaim.PERMISSIONS.value, "")
             }
         }
     }
-
 }

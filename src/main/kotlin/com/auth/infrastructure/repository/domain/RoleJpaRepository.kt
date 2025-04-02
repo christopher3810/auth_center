@@ -7,7 +7,6 @@ import java.util.*
 
 @Repository
 interface RoleJpaRepository : JpaRepository<RoleEntity, Long> {
-
     fun findByCode(code: String): Optional<RoleEntity>
 
     fun save(roleEntity: RoleEntity): RoleEntity

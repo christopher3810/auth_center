@@ -13,22 +13,18 @@ class OneTimeToken(
     val purpose: TokenPurpose,
     val issuedAt: Instant,
     val expiresAt: Instant,
-    var used: Boolean = false
+    var used: Boolean = false,
 ) {
     /**
      * 토큰이 만료되었는지 확인
      */
-    fun isExpired(): Boolean {
-        return Instant.now().isAfter(expiresAt)
-    }
-    
+    fun isExpired(): Boolean = Instant.now().isAfter(expiresAt)
+
     /**
      * 토큰이 유효한지 확인 (만료되지 않고, 사용되지 않음)
      */
-    fun isValid(): Boolean {
-        return !isExpired() && !used
-    }
-    
+    fun isValid(): Boolean = !isExpired() && !used
+
     /**
      * 토큰 사용 처리
      */
@@ -36,14 +32,12 @@ class OneTimeToken(
         used = true
         return this
     }
-    
+
     /**
      * 특정 목적의 토큰인지 확인
      */
-    fun hasCorrectPurpose(purpose: TokenPurpose): Boolean {
-        return this.purpose == purpose
-    }
-    
+    fun hasCorrectPurpose(purpose: TokenPurpose): Boolean = this.purpose == purpose
+
     companion object {
         /**
          * 이메일 인증 토큰 생성
@@ -52,21 +46,21 @@ class OneTimeToken(
             tokenValue: String,
             userId: Long,
             email: String,
-            expiryTimeInMinutes: Long = 30
+            expiryTimeInMinutes: Long = 30,
         ): OneTimeToken {
             val now = Instant.now()
             val expiresAt = now.plusSeconds(expiryTimeInMinutes * 60)
-            
+
             return OneTimeToken(
                 tokenValue = tokenValue,
                 userId = userId,
                 subject = email,
                 purpose = TokenPurpose.EMAIL_VERIFICATION,
                 issuedAt = now,
-                expiresAt = expiresAt
+                expiresAt = expiresAt,
             )
         }
-        
+
         /**
          * 비밀번호 재설정 토큰 생성
          */
@@ -74,21 +68,21 @@ class OneTimeToken(
             tokenValue: String,
             userId: Long,
             email: String,
-            expiryTimeInMinutes: Long = 15
+            expiryTimeInMinutes: Long = 15,
         ): OneTimeToken {
             val now = Instant.now()
             val expiresAt = now.plusSeconds(expiryTimeInMinutes * 60)
-            
+
             return OneTimeToken(
                 tokenValue = tokenValue,
                 userId = userId,
                 subject = email,
                 purpose = TokenPurpose.PASSWORD_RESET,
                 issuedAt = now,
-                expiresAt = expiresAt
+                expiresAt = expiresAt,
             )
         }
-        
+
         /**
          * 계정 활성화 토큰 생성
          */
@@ -96,19 +90,19 @@ class OneTimeToken(
             tokenValue: String,
             userId: Long,
             email: String,
-            expiryTimeInMinutes: Long = 1440 // 24시간
+            expiryTimeInMinutes: Long = 1440, // 24시간
         ): OneTimeToken {
             val now = Instant.now()
             val expiresAt = now.plusSeconds(expiryTimeInMinutes * 60)
-            
+
             return OneTimeToken(
                 tokenValue = tokenValue,
                 userId = userId,
                 subject = email,
                 purpose = TokenPurpose.ACCOUNT_ACTIVATION,
                 issuedAt = now,
-                expiresAt = expiresAt
+                expiresAt = expiresAt,
             )
         }
     }
-} 
+}

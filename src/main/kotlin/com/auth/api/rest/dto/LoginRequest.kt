@@ -11,8 +11,7 @@ data class LoginRequest(
     @Schema(description = "로그인에 사용할 이메일 또는 사용자명", example = "testuser or testuser@example.com")
     @field:NotBlank(message = "아이디(혹은 이메일)는 필수입니다.")
     val usernameOrEmail: String,
-
     @Schema(description = "비밀번호", example = "Password@123")
     @field:NotBlank(message = "비밀번호는 필수입니다.")
-    val password: String
-) 
+    val password: String,
+)

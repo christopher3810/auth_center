@@ -7,7 +7,5 @@ import java.util.*
 
 @Component("headerAuditorAware")
 class HeaderAuditorAware : AuditorAware<String> {
-    override fun getCurrentAuditor(): Optional<String> {
-        return Optional.ofNullable(RequestHeaderUtils.getCurrentUserInfo())
-    }
+    override fun getCurrentAuditor(): Optional<String> = Optional.ofNullable(RequestHeaderUtils.getCurrentUserInfo())
 }

@@ -1,7 +1,8 @@
 package com.auth.domain.user.value
 
-class UserId(val value: Long) {
-
+class UserId(
+    val value: Long,
+) {
     init {
         require(value > 0) { "사용자 ID는 양수여야 합니다." }
     }
@@ -14,17 +15,11 @@ class UserId(val value: Long) {
         return value == other.value
     }
 
-    override fun hashCode(): Int {
-        return value.hashCode()
-    }
+    override fun hashCode(): Int = value.hashCode()
 
-    override fun toString(): String {
-        return value.toString()
-    }
+    override fun toString(): String = value.toString()
 
     companion object {
-        fun of(id: Long): UserId {
-            return UserId(id)
-        }
+        fun of(id: Long): UserId = UserId(id)
     }
-} 
+}

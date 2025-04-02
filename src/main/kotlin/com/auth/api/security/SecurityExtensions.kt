@@ -10,7 +10,6 @@ import org.springframework.security.core.context.SecurityContextHolder
  * Spring Security 관련 유틸리티 기능을 제공하는 객체
  */
 object SecurityUtils {
-
     /**
      * 관리자 권한이 필요한 경우를 위한 인증 설정
      */
@@ -34,9 +33,12 @@ object SecurityUtils {
     /**
      * 커스텀 권한 목록으로 인증을 설정.
      */
-    fun setupAuthenticationWithRoles(userInfo: UserTokenInfo, customRoles: Set<String>) {
+    fun setupAuthenticationWithRoles(
+        userInfo: UserTokenInfo,
+        customRoles: Set<String>,
+    ) {
         val authorities = toRoleAuthorities(customRoles)
-        
+
         applyAuthentication(createAuthentication(userInfo, authorities))
     }
 
@@ -45,15 +47,14 @@ object SecurityUtils {
      */
     fun setupAuthentication(userInfo: UserTokenInfo) {
         val authorities = toRoleAuthorities(userInfo.roles)
-        
+
         applyAuthentication(createAuthentication(userInfo, authorities))
     }
 
     /**
      * 문자열 컬렉션을 Spring Security 권한 객체 목록으로 변환
      */
-    private fun toRoleAuthorities(roles: Collection<String>): List<SimpleGrantedAuthority> =
-        roles.map { toRoleAuthority(it) }
+    private fun toRoleAuthorities(roles: Collection<String>): List<SimpleGrantedAuthority> = roles.map { toRoleAuthority(it) }
 
     /**
      * 역할 문자열을 Spring Security 권한 객체로 변환
@@ -61,17 +62,19 @@ object SecurityUtils {
      * ROLE_ 접두사가 없는 경우 자동으로 추가.
      * 예: "ADMIN" -> "ROLE_ADMIN", "ROLE_USER" -> "ROLE_USER"
      */
-    private fun toRoleAuthority(role: String): SimpleGrantedAuthority =
-        SimpleGrantedAuthority(if (role.startsWith("ROLE_")) role else "ROLE_$role")
+    private fun toRoleAuthority(role: String): SimpleGrantedAuthority = SimpleGrantedAuthority(if (role.startsWith("ROLE_")) role else "ROLE_$role")
 
     /**
      * Authentication 객체 생성
      */
-    private fun createAuthentication(userInfo: UserTokenInfo, authorities: List<GrantedAuthority>): UsernamePasswordAuthenticationToken =
+    private fun createAuthentication(
+        userInfo: UserTokenInfo,
+        authorities: List<GrantedAuthority>,
+    ): UsernamePasswordAuthenticationToken =
         UsernamePasswordAuthenticationToken(
-            userInfo,          // principal - UserTokenInfo 객체
-            null,              // credentials - JWT 인증에서는 불필요
-            authorities        // 사용자 권한
+            userInfo, // principal - UserTokenInfo 객체
+            null, // credentials - JWT 인증에서는 불필요
+            authorities, // 사용자 권한
         )
 
     /**
@@ -97,4 +100,4 @@ object SecurityUtils {
         val authentication = SecurityContextHolder.getContext().authentication
         return authentication != null && authentication.isAuthenticated
     }
-} 
+}

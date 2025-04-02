@@ -21,9 +21,8 @@ class User(
     var status: UserStatus = UserStatus.INACTIVE,
     var lastLoginAt: LocalDateTime? = null,
     val createdAt: LocalDateTime? = null,
-    var updatedAt: LocalDateTime? = null
+    var updatedAt: LocalDateTime? = null,
 ) {
-
     private val domainEvents = mutableListOf<UserEvent>()
 
     /**
@@ -37,7 +36,7 @@ class User(
         }
         return this
     }
-    
+
     /**
      * 사용자 비활성화
      */
@@ -49,7 +48,7 @@ class User(
         }
         return this
     }
-    
+
     /**
      * 사용자 계정 잠금
      */
@@ -61,7 +60,7 @@ class User(
         }
         return this
     }
-    
+
     /**
      * 사용자 휴면 상태로 변경
      */
@@ -73,7 +72,7 @@ class User(
         }
         return this
     }
-    
+
     /**
      * 사용자 비밀번호 변경
      */
@@ -82,7 +81,7 @@ class User(
         registerEvent(UserPasswordChangedEvent(this))
         return this
     }
-    
+
     /**
      * 사용자 로그인 처리
      */
@@ -91,7 +90,7 @@ class User(
         registerEvent(UserLoggedInEvent(this))
         return this
     }
-    
+
     /**
      * 사용자에게 역할 추가
      */
@@ -101,7 +100,7 @@ class User(
         registerEvent(UserRolesChangedEvent(this, oldRoles, roles))
         return this
     }
-    
+
     /**
      * 사용자에게서 역할 제거
      */
@@ -113,7 +112,7 @@ class User(
         }
         return this
     }
-    
+
     /**
      * 사용자 역할 일괄 변경
      */
@@ -125,52 +124,47 @@ class User(
         }
         return this
     }
-    
+
     /**
      * 사용자가 특정 역할을 가지고 있는지 확인
      */
-    fun hasRole(role: String): Boolean {
-        return role in roles
-    }
-    
+    fun hasRole(role: String): Boolean = role in roles
+
     /**
      * 사용자 정보 업데이트
      */
-    fun update(name: String? = null, phoneNumber: String? = null): User {
+    fun update(
+        name: String? = null,
+        phoneNumber: String? = null,
+    ): User {
         name?.let { this.name = it }
         phoneNumber?.let { this.phoneNumber = it }
         updatedAt = LocalDateTime.now()
         return this
     }
-    
-    /**
-     * 사용자가 활성 상태인지 확인
-     */
-    fun isActive(): Boolean {
-        return status == UserStatus.ACTIVE
-    }
-    
-    /**
-     * 로그인 가능 상태인지 확인
-     */
-    fun isLoginable(): Boolean {
-        return status.isUsable()
-    }
 
     /**
      * 사용자가 활성 상태인지 확인
      */
-    fun isLock(): Boolean {
-        return status == UserStatus.LOCKED
-    }
-    
+    fun isActive(): Boolean = status == UserStatus.ACTIVE
+
+    /**
+     * 로그인 가능 상태인지 확인
+     */
+    fun isLoginable(): Boolean = status.isUsable()
+
+    /**
+     * 사용자가 활성 상태인지 확인
+     */
+    fun isLock(): Boolean = status == UserStatus.LOCKED
+
     /**
      * 이벤트 등록
      */
     fun registerEvent(event: UserEvent) {
         domainEvents.add(event)
     }
-    
+
     /**
      * 도메인 이벤트 조회 및 소비
      */
@@ -179,7 +173,7 @@ class User(
         domainEvents.clear()
         return events
     }
-    
+
     companion object {
         /**
          * 새 사용자 생성 팩토리 메소드
@@ -191,22 +185,23 @@ class User(
             password: Password,
             name: String,
             phoneNumber: String? = null,
-            initialRoles: Set<String> = setOf()
+            initialRoles: Set<String> = setOf(),
         ): User {
-            val user = User(
-                username = username,
-                email = email,
-                password = password,
-                name = name,
-                phoneNumber = phoneNumber,
-                roles = initialRoles,
-                status = UserStatus.INACTIVE,
-                createdAt = LocalDateTime.now()
-            )
+            val user =
+                User(
+                    username = username,
+                    email = email,
+                    password = password,
+                    name = name,
+                    phoneNumber = phoneNumber,
+                    roles = initialRoles,
+                    status = UserStatus.INACTIVE,
+                    createdAt = LocalDateTime.now(),
+                )
             user.registerEvent(UserCreatedEvent(user))
             return user
         }
-        
+
         /**
          * 관리자에 의한 사용자 생성 팩토리 메소드
          * 모델링 문서 참고: "관리자가 생성하는 경우 바로 활성화할 수 있습니다."
@@ -217,20 +212,21 @@ class User(
             password: Password,
             name: String,
             phoneNumber: String? = null,
-            initialRoles: Set<String> = setOf()
+            initialRoles: Set<String> = setOf(),
         ): User {
-            val user = User(
-                username = username,
-                email = email,
-                password = password,
-                name = name,
-                phoneNumber = phoneNumber,
-                roles = initialRoles,
-                status = UserStatus.ACTIVE,
-                createdAt = LocalDateTime.now()
-            )
+            val user =
+                User(
+                    username = username,
+                    email = email,
+                    password = password,
+                    name = name,
+                    phoneNumber = phoneNumber,
+                    roles = initialRoles,
+                    status = UserStatus.ACTIVE,
+                    createdAt = LocalDateTime.now(),
+                )
             user.registerEvent(UserCreatedEvent(user))
             return user
         }
     }
-} 
+}

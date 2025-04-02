@@ -25,8 +25,9 @@ import javax.crypto.SecretKey
  */
 @Component
 class JwtTokenAdaptor(
-    private val jwtConfig: JwtConfig
-) : TokenGenerator, TokenValidator {
+    private val jwtConfig: JwtConfig,
+) : TokenGenerator,
+    TokenValidator {
     // 문자열을 바이트 배열로 변환하여 적절한 Key 인스턴스 생성
     private val key: SecretKey = Keys.hmacShaKeyFor(jwtConfig.secret.toByteArray(Charsets.UTF_8))
     private val USE_ID: String = "userId"
@@ -35,25 +36,37 @@ class JwtTokenAdaptor(
      * 사용자 정보로부터 액세스 토큰 문자열 생성
      */
     override fun generateAccessTokenString(
-        subject: String, userId: Long,
-        roles: Set<String>, permissions: Set<String>
+        subject: String,
+        userId: Long,
+        roles: Set<String>,
+        permissions: Set<String>,
     ): String {
-
-        val tokenBuilder = TokenBuilder.authorizationTokenBuilder(
-            subject, jwtConfig.expirationMs, key, roles, permissions
-        )
+        val tokenBuilder =
+            TokenBuilder.authorizationTokenBuilder(
+                subject,
+                jwtConfig.expirationMs,
+                key,
+                roles,
+                permissions,
+            )
         return tokenBuilder
-            .withClaim(USE_ID , userId)
+            .withClaim(USE_ID, userId)
             .build()
     }
 
     /**
      * 사용자 정보로부터 리프레시 토큰 문자열 생성
      */
-    override fun generateRefreshTokenString(subject: String, userId: Long): String {
-        val tokenBuilder = TokenBuilder.refreshTokenBuilder(
-            subject, jwtConfig.refreshTokenExpirationMs, key
-        )
+    override fun generateRefreshTokenString(
+        subject: String,
+        userId: Long,
+    ): String {
+        val tokenBuilder =
+            TokenBuilder.refreshTokenBuilder(
+                subject,
+                jwtConfig.refreshTokenExpirationMs,
+                key,
+            )
         return tokenBuilder
             .withClaim(USE_ID, userId)
             .build()
@@ -62,10 +75,18 @@ class JwtTokenAdaptor(
     /**
      * 사용자 정보로부터 일회용 토큰 문자열 생성
      */
-    override fun generateOneTimeTokenString(subject: String, userId: Long, purpose: TokenPurpose): String {
-        val tokenBuilder = TokenBuilder.oneTimeTokenBuilder(
-            subject, jwtConfig.expirationMs, key, purpose.value
-        )
+    override fun generateOneTimeTokenString(
+        subject: String,
+        userId: Long,
+        purpose: TokenPurpose,
+    ): String {
+        val tokenBuilder =
+            TokenBuilder.oneTimeTokenBuilder(
+                subject,
+                jwtConfig.expirationMs,
+                key,
+                purpose.value,
+            )
         return tokenBuilder
             .withClaim(USE_ID, userId)
             .build()
@@ -74,9 +95,10 @@ class JwtTokenAdaptor(
     /**
      * JWT 토큰을 파싱하여 Claims를 추출합니다.
      */
-    override fun getClaims(token: String): Claims {
-        return try {
-            Jwts.parser()
+    override fun getClaims(token: String): Claims =
+        try {
+            Jwts
+                .parser()
                 .verifyWith(key)
                 .build()
                 .parseSignedClaims(token)
@@ -88,26 +110,22 @@ class JwtTokenAdaptor(
         } catch (ex: Exception) {
             throw TokenExtractionException("토큰에서 정보를 추출할 수 없습니다: ${ex.message}")
         }
-    }
 
     /**
      * JWT 토큰의 유효성을 검증합니다.
      */
-    override fun validateToken(token: String): Boolean {
-        return try {
+    override fun validateToken(token: String): Boolean =
+        try {
             getClaims(token)
             true
         } catch (ex: Exception) {
             false
         }
-    }
 
     /**
      * JWT 토큰에서 사용자의 식별자(subject)를 추출합니다.
      */
-    override fun getSubject(token: String): String {
-        return getClaims(token).subject
-    }
+    override fun getSubject(token: String): String = getClaims(token).subject
 
     /**
      * JWT 토큰에서 사용자 ID를 추출합니다.
@@ -160,5 +178,4 @@ class JwtTokenAdaptor(
         val expiration = getClaims(token).expiration
         return expiration?.toInstant()
     }
-
-} 
+}

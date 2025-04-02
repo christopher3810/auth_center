@@ -7,17 +7,14 @@ import jakarta.persistence.Embeddable
 @Embeddable
 class Email(
     @Column(name = "email", nullable = false, unique = true)
-    val value: String
+    val value: String,
 ) {
-
     init {
         require(isValid(value)) { "유효하지 않은 이메일 형식입니다: $value" }
     }
 
     companion object {
-        fun isValid(email: String): Boolean {
-            return PatternValidator.isValidEmail(email)
-        }
+        fun isValid(email: String): Boolean = PatternValidator.isValidEmail(email)
     }
 
     override fun equals(other: Any?): Boolean {
@@ -28,11 +25,7 @@ class Email(
         return value == other.value
     }
 
-    override fun hashCode(): Int {
-        return value.hashCode()
-    }
+    override fun hashCode(): Int = value.hashCode()
 
-    override fun toString(): String {
-        return value
-    }
-} 
+    override fun toString(): String = value
+}

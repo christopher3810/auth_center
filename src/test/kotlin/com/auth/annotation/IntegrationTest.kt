@@ -16,7 +16,7 @@ import kotlin.reflect.KClass
 @ActiveProfiles("test")
 @Testcontainers
 @Transactional
-annotation class IntegrationTest (
+annotation class IntegrationTest(
     @get:AliasFor(annotation = SpringBootTest::class, attribute = "classes")
-    val classes: Array<KClass<*>> = [TestDatabaseConfig::class]
+    val classes: Array<KClass<*>> = [TestDatabaseConfig::class],
 )

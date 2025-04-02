@@ -9,34 +9,37 @@ object PostgresqlTestContainer {
     private const val PASSWORD = "test"
 
     val instance: PostgreSQLContainer<*> by lazy {
-        PostgreSQLContainer(DockerImageName.parse("postgres:16-alpine")).apply {
-            withDatabaseName(DATABASE_NAME)
-            withUsername(USERNAME)
-            withPassword(PASSWORD)
-            // 컨테이너 재사용은 환경변수로 제어
-            withReuse(System.getProperty("testcontainers.reuse.enable")?.toBoolean() ?: false)
-            withInitScript("sql/init.sql")
-        }.also { container ->
-            Runtime.getRuntime().addShutdownHook(Thread {
-                if (container.isRunning) {
-                    container.stop()
-                }
-            })
-        }
+        PostgreSQLContainer(DockerImageName.parse("postgres:16-alpine"))
+            .apply {
+                withDatabaseName(DATABASE_NAME)
+                withUsername(USERNAME)
+                withPassword(PASSWORD)
+                // 컨테이너 재사용은 환경변수로 제어
+                withReuse(System.getProperty("testcontainers.reuse.enable")?.toBoolean() ?: false)
+                withInitScript("sql/init.sql")
+            }.also { container ->
+                Runtime.getRuntime().addShutdownHook(
+                    Thread {
+                        if (container.isRunning) {
+                            container.stop()
+                        }
+                    },
+                )
+            }
     }
 
-    //컨테이너 리셋.
+    // 컨테이너 리셋.
     fun reset() {
         if (instance.isRunning) {
             try {
                 instance.createConnection("").use { connection ->
                     connection.createStatement().execute(
                         """
-                    DROP SCHEMA public CASCADE;
-                    CREATE SCHEMA public;
-                    GRANT ALL ON SCHEMA public TO $USERNAME;
-                    GRANT ALL ON SCHEMA public TO public;
-                    """.trimIndent()
+                        DROP SCHEMA public CASCADE;
+                        CREATE SCHEMA public;
+                        GRANT ALL ON SCHEMA public TO $USERNAME;
+                        GRANT ALL ON SCHEMA public TO public;
+                        """.trimIndent(),
                     )
                 }
                 // 초기화 스크립트 경로를 상수로 관리
@@ -51,5 +54,4 @@ object PostgresqlTestContainer {
             }
         }
     }
-
 }

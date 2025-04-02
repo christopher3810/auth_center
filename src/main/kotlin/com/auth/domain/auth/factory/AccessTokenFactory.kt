@@ -27,7 +27,7 @@ class AccessTokenFactory {
         subject: String,
         validityInSeconds: Long,
         roles: Set<String> = emptySet(),
-        permissions: Set<String> = emptySet()
+        permissions: Set<String> = emptySet(),
     ): AccessToken {
         val issuedAt = Instant.now()
         val expiresAt = issuedAt.plus(validityInSeconds, ChronoUnit.SECONDS)
@@ -38,7 +38,7 @@ class AccessTokenFactory {
             issuedAt = issuedAt,
             expiresAt = expiresAt,
             roles = roles,
-            permissions = permissions
+            permissions = permissions,
         )
     }
 }

@@ -18,22 +18,25 @@ private val logger = KotlinLogging.logger {}
 @RestControllerAdvice
 @Order(Ordered.LOWEST_PRECEDENCE)
 class FallbackExceptionHandler {
-
     /**
      * 다른 핸들러에서 처리되지 않은 모든 예외를 처리
      */
     @ExceptionHandler(Exception::class)
-    fun handleAllUncaughtExceptions(ex: Exception, request: WebRequest): ResponseEntity<ApiErrorResponse> {
+    fun handleAllUncaughtExceptions(
+        ex: Exception,
+        request: WebRequest,
+    ): ResponseEntity<ApiErrorResponse> {
         logger.error(ex) { "처리되지 않은 예외 발생" }
-        
-        val errorResponse = ApiErrorResponse(
-            timestamp = LocalDateTime.now(),
-            status = HttpStatus.INTERNAL_SERVER_ERROR.value(),
-            error = HttpStatus.INTERNAL_SERVER_ERROR.reasonPhrase,
-            message = "서버 내부 오류가 발생했습니다.",
-            path = request.getDescription(false).replace("uri=", "")
-        )
-        
+
+        val errorResponse =
+            ApiErrorResponse(
+                timestamp = LocalDateTime.now(),
+                status = HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                error = HttpStatus.INTERNAL_SERVER_ERROR.reasonPhrase,
+                message = "서버 내부 오류가 발생했습니다.",
+                path = request.getDescription(false).replace("uri=", ""),
+            )
+
         return ResponseEntity(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR)
     }
-} 
+}

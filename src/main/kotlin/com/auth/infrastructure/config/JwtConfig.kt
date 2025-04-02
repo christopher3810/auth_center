@@ -11,21 +11,23 @@ import org.springframework.boot.context.properties.bind.ConstructorBinding
  * @property refreshTokenValidityInSeconds 리프레시 토큰 유효 기간(초)
  */
 @ConfigurationProperties(prefix = "jwt")
-data class JwtConfig @ConstructorBinding constructor(
-    val secret: String,
-    val accessTokenValidityInSeconds: Long,
-    val refreshTokenValidityInSeconds: Long
-) {
-    /**
-     * 액세스 토큰 유효 기간(밀리초)
-     * TokenService와의 일관성을 위해 제공
-     */
-    val expirationMs: Long
-        get() = accessTokenValidityInSeconds * 1000
-    
-    /**
-     * 리프레시 토큰 유효 기간(밀리초) 
-     */
-    val refreshTokenExpirationMs: Long
-        get() = refreshTokenValidityInSeconds * 1000
-}
+data class JwtConfig
+    @ConstructorBinding
+    constructor(
+        val secret: String,
+        val accessTokenValidityInSeconds: Long,
+        val refreshTokenValidityInSeconds: Long,
+    ) {
+        /**
+         * 액세스 토큰 유효 기간(밀리초)
+         * TokenService와의 일관성을 위해 제공
+         */
+        val expirationMs: Long
+            get() = accessTokenValidityInSeconds * 1000
+
+        /**
+         * 리프레시 토큰 유효 기간(밀리초)
+         */
+        val refreshTokenExpirationMs: Long
+            get() = refreshTokenValidityInSeconds * 1000
+    }

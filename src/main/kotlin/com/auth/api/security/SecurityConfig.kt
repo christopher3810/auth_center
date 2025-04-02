@@ -19,13 +19,10 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 @EnableMethodSecurity
 class SecurityConfig(
-    private val tokenAppService: TokenAppService
+    private val tokenAppService: TokenAppService,
 ) {
-
     @Bean
-    fun passwordEncoder(): PasswordEncoder {
-        return BCryptPasswordEncoder()
-    }
+    fun passwordEncoder(): PasswordEncoder = BCryptPasswordEncoder()
 
     /**
      * Spring Security 6 에서는 WebSecurityConfigurerAdapter가 deprecated 되었으므로,
@@ -34,20 +31,23 @@ class SecurityConfig(
     @Bean
     fun filterChain(
         http: HttpSecurity,
-        @Value("\${security.permit-all-patterns:}") permitAllPatterns: List<String>
+        @Value("\${security.permit-all-patterns:}") permitAllPatterns: List<String>,
     ): SecurityFilterChain {
         http
-            .csrf { csrfConfigurer : CsrfConfigurer<HttpSecurity> -> csrfConfigurer.disable() }
-            .sessionManagement { sessionConfigurer : SessionManagementConfigurer<HttpSecurity> ->
-                sessionConfigurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
-            .authorizeHttpRequests { auth ->
-                auth.requestMatchers(*permitAllPatterns.toTypedArray()).permitAll()
-                    .anyRequest().authenticated()
+            .csrf { csrfConfigurer: CsrfConfigurer<HttpSecurity> -> csrfConfigurer.disable() }
+            .sessionManagement { sessionConfigurer: SessionManagementConfigurer<HttpSecurity> ->
+                sessionConfigurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+            }.authorizeHttpRequests { auth ->
+                auth
+                    .requestMatchers(*permitAllPatterns.toTypedArray())
+                    .permitAll()
+                    .anyRequest()
+                    .authenticated()
             }
             // UsernamePasswordAuthenticationFilter 앞단에서 JWT 필터를 실행하여 인증 처리
             .addFilterBefore(
                 JwtAuthenticationFilter(tokenAppService),
-                UsernamePasswordAuthenticationFilter::class.java
+                UsernamePasswordAuthenticationFilter::class.java,
             )
 
         return http.build()

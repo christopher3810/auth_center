@@ -5,5 +5,5 @@ package com.auth.api.rest.dto
  * 토큰의 유효성을 검증하기 위한 요청 데이터를 담습니다.
  */
 data class TokenValidationRequest(
-    val token: String
-) 
+    val token: String,
+)

@@ -6,8 +6,8 @@ import java.time.Instant
 
 /**
  * 토큰 검증을 담당하는 도메인 서비스 인터페이스
- * 
- * 이 인터페이스는 JWT 토큰의 유효성을 검증하고 
+ *
+ * 이 인터페이스는 JWT 토큰의 유효성을 검증하고
  * 토큰에서 필요한 정보를 추출하는 메서드를 정의.
  */
 interface TokenValidator {
@@ -54,7 +54,7 @@ interface TokenValidator {
      * @return 토큰의 목적 정보 (없으면 null)
      */
     fun getPurpose(token: String): TokenPurpose?
-    
+
     /**
      * 토큰에서 토큰 타입 정보를 추출합니다.
      * ACCESS, REFRESH, ONE_TIME 등의 타입이 있을 수 있습니다.
@@ -63,7 +63,7 @@ interface TokenValidator {
      * @return 토큰의 타입 정보 (없으면 null)
      */
     fun getTokenType(token: String): TokenType?
-    
+
     /**
      * 토큰에서 사용자 역할 정보를 추출합니다.
      *
@@ -82,5 +82,4 @@ interface TokenValidator {
      * 보통 Instant 형태로 반환하여 이후 만료 여부나 남은 유효 시간을 계산할 수 있습니다.
      */
     fun getExpirationTime(token: String): Instant?
-
-} 
+}

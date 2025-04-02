@@ -8,5 +8,5 @@ data class TokenValidationResponse(
     val valid: Boolean,
     val username: String? = null,
     val authorities: List<String> = emptyList(),
-    val error: String? = null
-) 
+    val error: String? = null,
+)

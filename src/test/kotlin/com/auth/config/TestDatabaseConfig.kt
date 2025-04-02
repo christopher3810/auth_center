@@ -10,7 +10,6 @@ import javax.sql.DataSource
 
 @TestConfiguration
 class TestDatabaseConfig {
-
     @Bean
     fun dataSource(): DataSource {
         val container = PostgresqlTestContainer.instance

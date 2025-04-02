@@ -20,21 +20,24 @@ private val logger = KotlinLogging.logger {}
 @RestControllerAdvice
 @Order(Ordered.HIGHEST_PRECEDENCE + 10)
 class UserExceptionHandler {
-
     /**
      * 사용자를 찾을 수 없을 때 발생하는 예외 처리
      */
     @ExceptionHandler(UserNotFoundException::class)
-    fun handleUserNotFoundException(ex: UserNotFoundException, request: WebRequest): ResponseEntity<ApiErrorResponse> {
+    fun handleUserNotFoundException(
+        ex: UserNotFoundException,
+        request: WebRequest,
+    ): ResponseEntity<ApiErrorResponse> {
         logger.warn(ex) { ex.message }
 
-        val errorResponse = ApiErrorResponse(
-            timestamp = LocalDateTime.now(),
-            status = HttpStatus.NOT_FOUND.value(),
-            error = HttpStatus.NOT_FOUND.reasonPhrase,
-            message = ex.message ?: "사용자를 찾을 수 없습니다.",
-            path = request.getDescription(false).replace("uri=", "")
-        )
+        val errorResponse =
+            ApiErrorResponse(
+                timestamp = LocalDateTime.now(),
+                status = HttpStatus.NOT_FOUND.value(),
+                error = HttpStatus.NOT_FOUND.reasonPhrase,
+                message = ex.message ?: "사용자를 찾을 수 없습니다.",
+                path = request.getDescription(false).replace("uri=", ""),
+            )
 
         return ResponseEntity(errorResponse, HttpStatus.NOT_FOUND)
     }
@@ -43,16 +46,20 @@ class UserExceptionHandler {
      * 이미 존재하는 사용자일 때 발생하는 예외 처리
      */
     @ExceptionHandler(AlreadyUserExistsException::class)
-    fun handleAlreadyUserExists(ex: AlreadyUserExistsException, request: WebRequest): ResponseEntity<ApiErrorResponse> {
+    fun handleAlreadyUserExists(
+        ex: AlreadyUserExistsException,
+        request: WebRequest,
+    ): ResponseEntity<ApiErrorResponse> {
         logger.warn(ex) { ex.message }
 
-        val errorResponse = ApiErrorResponse(
-            timestamp = LocalDateTime.now(),
-            status = HttpStatus.CONFLICT.value(),
-            error = HttpStatus.CONFLICT.reasonPhrase,
-            message = ex.message ?: "이미 존재하는 사용자입니다.",
-            path = request.getDescription(false).replace("uri=", "")
-        )
+        val errorResponse =
+            ApiErrorResponse(
+                timestamp = LocalDateTime.now(),
+                status = HttpStatus.CONFLICT.value(),
+                error = HttpStatus.CONFLICT.reasonPhrase,
+                message = ex.message ?: "이미 존재하는 사용자입니다.",
+                path = request.getDescription(false).replace("uri=", ""),
+            )
 
         return ResponseEntity(errorResponse, HttpStatus.CONFLICT)
     }
@@ -62,16 +69,20 @@ class UserExceptionHandler {
      * 이 핸들러는 사용자 관련 컨트롤러에서 발생한 NoSuchElementException만 처리함
      */
     @ExceptionHandler(NoSuchElementException::class)
-    fun handleNoSuchElementException(ex: NoSuchElementException, request: WebRequest): ResponseEntity<ApiErrorResponse> {
+    fun handleNoSuchElementException(
+        ex: NoSuchElementException,
+        request: WebRequest,
+    ): ResponseEntity<ApiErrorResponse> {
         logger.warn(ex) { "요소를 찾을 수 없음" }
 
-        val errorResponse = ApiErrorResponse(
-            timestamp = LocalDateTime.now(),
-            status = HttpStatus.NOT_FOUND.value(),
-            error = HttpStatus.NOT_FOUND.reasonPhrase,
-            message = ex.message ?: "요청한 리소스를 찾을 수 없습니다.",
-            path = request.getDescription(false).replace("uri=", "")
-        )
+        val errorResponse =
+            ApiErrorResponse(
+                timestamp = LocalDateTime.now(),
+                status = HttpStatus.NOT_FOUND.value(),
+                error = HttpStatus.NOT_FOUND.reasonPhrase,
+                message = ex.message ?: "요청한 리소스를 찾을 수 없습니다.",
+                path = request.getDescription(false).replace("uri=", ""),
+            )
 
         return ResponseEntity(errorResponse, HttpStatus.NOT_FOUND)
     }

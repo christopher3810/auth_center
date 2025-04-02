@@ -10,7 +10,7 @@ data class ApiErrorResponse(
     val status: Int,
     val error: String,
     val message: String,
-    val path: String
+    val path: String,
 )
 
 /**
@@ -22,5 +22,5 @@ data class ValidationErrorResponse(
     val error: String,
     val message: String,
     val fieldErrors: Map<String, String>,
-    val path: String
-) 
+    val path: String,
+)

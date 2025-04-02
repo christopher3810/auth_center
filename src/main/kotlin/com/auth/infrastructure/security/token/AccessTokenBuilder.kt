@@ -13,11 +13,10 @@ import javax.crypto.SecretKey
 internal class AccessTokenBuilder(
     subject: String,
     expirationMs: Long,
-    key: SecretKey
+    key: SecretKey,
 ) : AbstractTokenBuilder(subject, expirationMs, key) {
-    
     override fun customizeBuild(builder: JwtBuilder) {
         // 액세스 토큰 타입 설정
         builder.claim(TokenClaim.TYPE.value, TokenType.ACCESS.value)
     }
-} 
+}

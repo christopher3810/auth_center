@@ -10,16 +10,15 @@ data class TokenResponse(
     val accessToken: String,
     val refreshToken: String,
     val tokenType: String = "Bearer",
-    val expiresIn: Long
+    val expiresIn: Long,
 ) {
     companion object {
         // 정적 팩토리 메서드
-        fun from(dto: TokenDto): TokenResponse {
-            return TokenResponse(
+        fun from(dto: TokenDto): TokenResponse =
+            TokenResponse(
                 accessToken = dto.accessToken,
                 refreshToken = dto.refreshToken,
-                expiresIn = dto.expiresIn
+                expiresIn = dto.expiresIn,
             )
-        }
     }
 }

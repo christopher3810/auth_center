@@ -16,14 +16,12 @@ data class UserJoinRequest(
     @field:Size(min = 4, max = 20, message = "사용자명은 4자 이상 20자 이하로 입력해주세요.")
     @field:Pattern(regexp = "^[a-zA-Z0-9_]+$", message = "사용자명은 영문자, 숫자, 언더스코어(_)만 사용 가능합니다.")
     val username: String,
-
     /**
      * 사용자 이메일
      */
     @field:NotBlank(message = "이메일은 필수 입력값입니다.")
     @field:Email(message = "유효한 이메일 형식이 아닙니다.")
     val email: String,
-
     /**
      * 사용자 비밀번호
      */
@@ -31,27 +29,25 @@ data class UserJoinRequest(
     @field:Size(min = 8, message = "비밀번호는 8자 이상이어야 합니다.")
     @field:Pattern(
         regexp = "^(?=.*[a-zA-Z])(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]+$",
-        message = "비밀번호는 영문자, 숫자, 특수문자를 포함해야 합니다."
+        message = "비밀번호는 영문자, 숫자, 특수문자를 포함해야 합니다.",
     )
     val password: String,
-
     /**
      * 사용자 이름 (실명)
      */
     @field:NotBlank(message = "이름은 필수 입력값입니다.")
     @field:Size(max = 50, message = "이름은 50자 이하로 입력해주세요.")
     val name: String,
-
     /**
      * 사용자 전화번호 (선택 입력)
      * 파싱시 하이픈이 없이 와야 한다.
      */
     @field:Pattern(
-        regexp = "^(01[016789])[0-9]{3,4}[0-9]{4}$", 
+        regexp = "^(01[016789])[0-9]{3,4}[0-9]{4}$",
         message = "올바른 전화번호 형식이 아닙니다.",
-        flags = [Pattern.Flag.CASE_INSENSITIVE]
+        flags = [Pattern.Flag.CASE_INSENSITIVE],
     )
-    val phoneNumber: String? = null
+    val phoneNumber: String? = null,
 )
 
 /**
@@ -64,16 +60,15 @@ data class UserProfileUpdateRequest(
     @field:NotBlank(message = "이름은 필수 입력값입니다.")
     @field:Size(max = 50, message = "이름은 50자 이하로 입력해주세요.")
     val name: String,
-
     /**
      * 변경할 사용자 전화번호 (선택 입력)
      */
     @field:Pattern(
         regexp = "^(01[016789])[0-9]{3,4}[0-9]{4}$",
         message = "올바른 전화번호 형식이 아닙니다.",
-        flags = [Pattern.Flag.CASE_INSENSITIVE]
+        flags = [Pattern.Flag.CASE_INSENSITIVE],
     )
-    val phoneNumber: String? = null
+    val phoneNumber: String? = null,
 )
 
 /**
@@ -85,7 +80,6 @@ data class UserPasswordChangeRequest(
      */
     @field:NotBlank(message = "현재 비밀번호는 필수 입력값입니다.")
     val currentPassword: String,
-
     /**
      * 새로운 비밀번호
      */
@@ -93,9 +87,9 @@ data class UserPasswordChangeRequest(
     @field:Size(min = 8, message = "비밀번호는 8자 이상이어야 합니다.")
     @field:Pattern(
         regexp = "^(?=.*[a-zA-Z])(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]+$",
-        message = "비밀번호는 영문자, 숫자, 특수문자를 포함해야 합니다."
+        message = "비밀번호는 영문자, 숫자, 특수문자를 포함해야 합니다.",
     )
-    val newPassword: String
+    val newPassword: String,
 )
 
 /**
@@ -106,5 +100,5 @@ data class UserRoleChangeRequest(
      * 사용자에게 부여할 역할 목록
      */
     @field:NotBlank(message = "역할은 최소 하나 이상 지정해야 합니다.")
-    val roles: Set<String>
-) 
+    val roles: Set<String>,
+)

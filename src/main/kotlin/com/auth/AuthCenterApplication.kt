@@ -11,4 +11,4 @@ class AuthCenterApplication
 
 fun main(args: Array<String>) {
     runApplication<AuthCenterApplication>(*args)
-} 
+}

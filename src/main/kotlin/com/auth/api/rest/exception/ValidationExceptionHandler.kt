@@ -20,30 +20,33 @@ private val logger = KotlinLogging.logger {}
 @RestControllerAdvice
 @Order(Ordered.HIGHEST_PRECEDENCE + 30)
 class ValidationExceptionHandler {
-
     /**
      * 요청 파라미터 유효성 검증 실패 시 발생하는 예외 처리
      */
     @ExceptionHandler(MethodArgumentNotValidException::class)
-    fun handleValidationExceptions(ex: MethodArgumentNotValidException, request: WebRequest): ResponseEntity<ValidationErrorResponse> {
+    fun handleValidationExceptions(
+        ex: MethodArgumentNotValidException,
+        request: WebRequest,
+    ): ResponseEntity<ValidationErrorResponse> {
         logger.warn(ex) { "유효성 검증 실패" }
-        
-        val errors = ex.bindingResult.allErrors.associate { error ->
-            val fieldName = if (error is FieldError) error.field else error.objectName
-            val message = error.defaultMessage ?: "유효하지 않은 값입니다."
-            fieldName to message
-        }
-        
-        val errorResponse = ValidationErrorResponse(
-            timestamp = LocalDateTime.now(),
-            status = HttpStatus.BAD_REQUEST.value(),
-            error = HttpStatus.BAD_REQUEST.reasonPhrase,
-            message = "입력값 검증에 실패했습니다.",
-            fieldErrors = errors,
-            path = request.getDescription(false).replace("uri=", "")
-        )
-        
+
+        val errors =
+            ex.bindingResult.allErrors.associate { error ->
+                val fieldName = if (error is FieldError) error.field else error.objectName
+                val message = error.defaultMessage ?: "유효하지 않은 값입니다."
+                fieldName to message
+            }
+
+        val errorResponse =
+            ValidationErrorResponse(
+                timestamp = LocalDateTime.now(),
+                status = HttpStatus.BAD_REQUEST.value(),
+                error = HttpStatus.BAD_REQUEST.reasonPhrase,
+                message = "입력값 검증에 실패했습니다.",
+                fieldErrors = errors,
+                path = request.getDescription(false).replace("uri=", ""),
+            )
+
         return ResponseEntity(errorResponse, HttpStatus.BAD_REQUEST)
     }
-
-} 
+}

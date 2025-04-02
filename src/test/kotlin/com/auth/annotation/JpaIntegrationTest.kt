@@ -19,5 +19,5 @@ import org.testcontainers.junit.jupiter.Testcontainers
 @Import(TestDatabaseConfig::class)
 annotation class JpaIntegrationTest(
     @get:AliasFor(annotation = DataJpaTest::class, attribute = "properties")
-    val properties: Array<String> = []
+    val properties: Array<String> = [],
 )

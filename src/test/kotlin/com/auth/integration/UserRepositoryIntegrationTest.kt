@@ -17,16 +17,13 @@ import io.mockk.every
 import io.mockk.mockk
 import jakarta.servlet.http.HttpServletRequest
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.context.annotation.Import
-import org.springframework.test.context.ActiveProfiles
 import org.springframework.web.context.request.RequestContextHolder
 import org.springframework.web.context.request.ServletRequestAttributes
 
 @JpaIntegrationTest
 @Import(JpaAuditingConfig::class, HeaderAuditorAware::class)
 class UserRepositoryIntegrationTest : DescribeSpec() {
-
     override fun extensions() = listOf(SpringExtension)
 
     @Autowired
@@ -48,13 +45,14 @@ class UserRepositoryIntegrationTest : DescribeSpec() {
                     RequestContextHolder.setRequestAttributes(attributes)
 
                     // 새로운 User 생성 및 저장
-                    val user = UserEntity(
-                        userName = "integration_test",
-                        email = Email("integration@example.com"),
-                        password = Password.of("Password123!"),
-                        name = "Integration Test",
-                        phoneNumber = "010-1234-5678"
-                    )
+                    val user =
+                        UserEntity(
+                            userName = "integration_test",
+                            email = Email("integration@example.com"),
+                            password = Password.of("Password123!"),
+                            name = "Integration Test",
+                            phoneNumber = "010-1234-5678",
+                        )
                     val savedUser = userJpaRepository.save(user)
 
                     // 감사 정보(Traceable)가 자동으로 채워졌는지 검증

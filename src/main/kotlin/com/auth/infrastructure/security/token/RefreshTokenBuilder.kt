@@ -13,14 +13,13 @@ import javax.crypto.SecretKey
 internal class RefreshTokenBuilder(
     subject: String,
     expirationMs: Long,
-    key: SecretKey
+    key: SecretKey,
 ) : AbstractTokenBuilder(subject, expirationMs, key) {
-    
     override fun customizeBuild(builder: JwtBuilder) {
         // 리프레시 토큰 타입 설정
         builder.claim(TokenClaim.TYPE.value, TokenType.REFRESH.value)
-        
+
         // 고유 ID 추가 (토큰 무효화에 사용 가능)
         builder.id(UUID.randomUUID().toString())
     }
-} 
+}

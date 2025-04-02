@@ -4,7 +4,7 @@ import java.time.Instant
 
 /**
  * 토큰 발급 결과를 담는 DTO
- * 
+ *
  * @property accessToken 액세스 토큰
  * @property refreshToken 리프레시 토큰
  * @property tokenType 토큰 타입 (Bearer)
@@ -20,7 +20,7 @@ data class TokenDto(
     val expiresIn: Long,
     val refreshTokenExpiresIn: Long? = null,
     val refreshTokenIssuedAt: Instant? = null,
-    val isNewRefreshToken: Boolean = false
+    val isNewRefreshToken: Boolean = false,
 ) {
     companion object {
         /**

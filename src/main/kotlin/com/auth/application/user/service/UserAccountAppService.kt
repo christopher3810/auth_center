@@ -17,7 +17,7 @@ import org.springframework.transaction.annotation.Transactional
  */
 @Service
 class UserAccountAppService(
-    private val userDomainService: UserDomainService
+    private val userDomainService: UserDomainService,
 ) {
     /**
      * 사용자 등록
@@ -37,10 +37,8 @@ class UserAccountAppService(
         email: String,
         password: String,
         name: String,
-        phoneNumber: String? = null
-    ): User {
-        return userDomainService.createUser(username, email, password, name, phoneNumber)
-    }
+        phoneNumber: String? = null,
+    ): User = userDomainService.createUser(username, email, password, name, phoneNumber)
 
     /**
      * 로그인 시 비밀번호·계정 상태 검증
@@ -51,40 +49,41 @@ class UserAccountAppService(
      * @throws InvalidCredentialsException 인증 실패 시(비밀번호 불일치, 계정 상태 문제 등)
      */
     @Transactional(readOnly = true)
-    fun validateLogin(usernameOrEmail: String, rawPassword: String): User = runCatching {
-        //1. 이메일 검증
-        val user = when {
-            PatternValidator.isValidEmail(usernameOrEmail) -> userDomainService.findUserByEmail(Email(usernameOrEmail))
-            else -> userDomainService.findUserByUsername(usernameOrEmail)
+    fun validateLogin(
+        usernameOrEmail: String,
+        rawPassword: String,
+    ): User =
+        runCatching {
+            // 1. 이메일 검증
+            val user =
+                when {
+                    PatternValidator.isValidEmail(usernameOrEmail) -> userDomainService.findUserByEmail(Email(usernameOrEmail))
+                    else -> userDomainService.findUserByUsername(usernameOrEmail)
+                }
+
+            // 2. 비밀번호 검증
+            if (!user.password.matches(rawPassword)) {
+                throw InvalidCredentialsException("아이디 또는 비밀번호가 맞지 않습니다.")
+            }
+
+            // 3. 계정 상태 검증
+            return user.takeIf { it.isLoginable() }
+                ?: throw InvalidCredentialsException("현재 로그인할 수 없는 상태입니다: ${user.status}")
+        }.getOrElse { e ->
+            when (e) {
+                is UserNotFoundException -> throw InvalidCredentialsException("아이디 또는 비밀번호가 맞지 않습니다.")
+                else -> throw e
+            }
         }
-
-        //2. 비밀번호 검증
-        if (!user.password.matches(rawPassword)) {
-            throw InvalidCredentialsException("아이디 또는 비밀번호가 맞지 않습니다.")
-        }
-
-        //3. 계정 상태 검증
-        return user.takeIf { it.isLoginable() }
-            ?: throw InvalidCredentialsException("현재 로그인할 수 없는 상태입니다: ${user.status}")
-
-    }.getOrElse { e ->
-        when (e) {
-            is UserNotFoundException -> throw InvalidCredentialsException("아이디 또는 비밀번호가 맞지 않습니다.")
-            else -> throw e
-        }
-    }
-
 
     /**
      * ID로 사용자 조회
-     * 
+     *
      * @param id 사용자 ID
      * @return 사용자 도메인 객체 또는 null
      */
     @Transactional(readOnly = true)
-    fun getUserById(id: Long): User {
-        return userDomainService.findUserById(id)
-    }
+    fun getUserById(id: Long): User = userDomainService.findUserById(id)
 
     /**
      * 이메일로 사용자 조회
@@ -107,9 +106,7 @@ class UserAccountAppService(
      * @return 사용자 도메인 객체를 포함한 Optional
      */
     @Transactional(readOnly = true)
-    fun getUserByUsername(username: String): User {
-        return userDomainService.findUserByUsername(username)
-    }
+    fun getUserByUsername(username: String): User = userDomainService.findUserByUsername(username)
 
     /**
      * 사용자 프로필 업데이트
@@ -124,7 +121,11 @@ class UserAccountAppService(
      * @throws NoSuchElementException 사용자가 존재하지 않는 경우
      */
     @Transactional
-    fun updateUserProfile(userId: Long, name: String, phoneNumber: String?): User =
+    fun updateUserProfile(
+        userId: Long,
+        name: String,
+        phoneNumber: String?,
+    ): User =
         runCatching { userDomainService.findUserById(userId) }
             .getOrElse { throw UserNotFoundException.byId(userId, it) }
             .apply { update(name, phoneNumber) }
@@ -142,7 +143,11 @@ class UserAccountAppService(
      * @throws NoSuchElementException 사용자가 존재하지 않는 경우
      */
     @Transactional
-    fun changeUserPassword(userId: Long, currentPassword: String, newPassword: String): Boolean {
+    fun changeUserPassword(
+        userId: Long,
+        currentPassword: String,
+        newPassword: String,
+    ): Boolean {
         val user = userDomainService.findUserById(userId)
 
         // 현재 비밀번호 확인 - 도메인 객체의 검증 기능 활용
@@ -227,7 +232,10 @@ class UserAccountAppService(
      * @throws NoSuchElementException 사용자가 존재하지 않는 경우
      */
     @Transactional
-    fun addRoleToUser(userId: Long, role: String): User {
+    fun addRoleToUser(
+        userId: Long,
+        role: String,
+    ): User {
         val user = userDomainService.findUserById(userId)
 
         user.addRole(role)
@@ -243,7 +251,10 @@ class UserAccountAppService(
      * @throws NoSuchElementException 사용자가 존재하지 않는 경우
      */
     @Transactional
-    fun removeRoleFromUser(userId: Long, role: String): User {
+    fun removeRoleFromUser(
+        userId: Long,
+        role: String,
+    ): User {
         val user = userDomainService.findUserById(userId)
 
         user.removeRole(role)
@@ -259,7 +270,10 @@ class UserAccountAppService(
      * @throws NoSuchElementException 사용자가 존재하지 않는 경우
      */
     @Transactional
-    fun updateUserRoles(userId: Long, roles: Set<String>): User {
+    fun updateUserRoles(
+        userId: Long,
+        roles: Set<String>,
+    ): User {
         val user = userDomainService.findUserById(userId)
 
         user.updateRoles(roles)
@@ -289,9 +303,7 @@ class UserAccountAppService(
      * @return 사용자 도메인 객체 목록
      */
     @Transactional(readOnly = true)
-    fun getAllUsers(): List<User> {
-        return userDomainService.findAllUsers()
-    }
+    fun getAllUsers(): List<User> = userDomainService.findAllUsers()
 
     /**
      * 사용자 삭제
@@ -305,4 +317,4 @@ class UserAccountAppService(
 
         userDomainService.deleteUser(user)
     }
-} 
+}

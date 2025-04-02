@@ -14,7 +14,7 @@ class RoleModel(
     var description: String? = null,
     var permissions: Set<String> = setOf(),
     val createdAt: LocalDateTime? = null,
-    var updatedAt: LocalDateTime? = null
+    var updatedAt: LocalDateTime? = null,
 ) {
     /**
      * 권한 추가
@@ -23,7 +23,7 @@ class RoleModel(
         permissions = permissions + permission
         return this
     }
-    
+
     /**
      * 권한 제거
      */
@@ -33,14 +33,12 @@ class RoleModel(
         }
         return this
     }
-    
+
     /**
      * 특정 권한을 가지고 있는지 확인
      */
-    fun hasPermission(permission: String): Boolean {
-        return permission in permissions
-    }
-    
+    fun hasPermission(permission: String): Boolean = permission in permissions
+
     /**
      * 권한 일괄 변경
      */
@@ -48,14 +46,17 @@ class RoleModel(
         permissions = newPermissions
         return this
     }
-    
+
     /**
      * 역할 정보 업데이트 (이름, 설명)
      */
-    fun update(name: String? = null, description: String? = null): RoleModel {
+    fun update(
+        name: String? = null,
+        description: String? = null,
+    ): RoleModel {
         name?.let { this.name = it }
         description?.let { this.description = it }
         updatedAt = LocalDateTime.now()
         return this
     }
-} 
+}

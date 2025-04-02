@@ -11,7 +11,7 @@ private val logger = KotlinLogging.logger {}
 @Service
 class TokenBlacklistService(
     private val tokenValidator: TokenValidator,
-    private val refreshTokenDomainService: RefreshTokenDomainService
+    private val refreshTokenDomainService: RefreshTokenDomainService,
 ) {
     companion object {
         private const val TYPE_CLAIM = "type"
@@ -27,17 +27,18 @@ class TokenBlacklistService(
      * @return 처리 결과
      */
     @Transactional
-    fun addToBlacklist(token: String): Boolean = runCatching {
-        when {
-            !tokenValidator.validateToken(token) -> {
-                logger.warn { "블랙리스트 추가 실패: 유효하지 않은 토큰" }
-                false
+    fun addToBlacklist(token: String): Boolean =
+        runCatching {
+            when {
+                !tokenValidator.validateToken(token) -> {
+                    logger.warn { "블랙리스트 추가 실패: 유효하지 않은 토큰" }
+                    false
+                }
+                else -> processValidToken(token)
             }
-            else -> processValidToken(token)
+        }.getOrElse { exception ->
+            logTokenProcessingError(exception, token, "블랙리스트 추가")
         }
-    }.getOrElse { exception ->
-        logTokenProcessingError(exception, token, "블랙리스트 추가")
-    }
 
     /**
      * 유효한 토큰을 처리합니다.
@@ -67,7 +68,10 @@ class TokenBlacklistService(
     /**
      * 액세스 토큰 무효화를 위해 해당 사용자의 모든 리프레시 토큰을 차단.
      */
-    private fun handleAccessTokenBlacklisting(userId: Long, token: String): Boolean {
+    private fun handleAccessTokenBlacklisting(
+        userId: Long,
+        token: String,
+    ): Boolean {
         val revokedCount = refreshTokenDomainService.revokeAllUserTokens(userId)
         logger.debug { "액세스 토큰 블랙리스트 추가로 인해 ${revokedCount}개의 리프레시 토큰 차단됨 (토큰: ${tokenPreview(token)})" }
         return true
@@ -76,8 +80,7 @@ class TokenBlacklistService(
     /**
      * 토큰의 일부분을 보여주는 프리뷰 문자열을 생성합니다.
      */
-    private fun tokenPreview(token: String): String =
-        "${token.take(TOKEN_PREVIEW_LENGTH)}..."
+    private fun tokenPreview(token: String): String = "${token.take(TOKEN_PREVIEW_LENGTH)}..."
 
     /**
      * 토큰이 블랙리스트에 있는지 확인합니다.
@@ -86,11 +89,12 @@ class TokenBlacklistService(
      * @return 블랙리스트에 있으면 true, 없으면 false
      */
     @Transactional(readOnly = true)
-    fun isBlacklisted(token: String): Boolean = runCatching {
-        checkTokenIsInBlacklist(token)
-    }.getOrElse { exception ->
-        logTokenProcessingError(exception, token, "블랙리스트 확인")
-    }
+    fun isBlacklisted(token: String): Boolean =
+        runCatching {
+            checkTokenIsInBlacklist(token)
+        }.getOrElse { exception ->
+            logTokenProcessingError(exception, token, "블랙리스트 확인")
+        }
 
     private fun checkTokenIsInBlacklist(token: String): Boolean =
         tokenValidator.getClaims(token).let { claims ->
@@ -100,7 +104,11 @@ class TokenBlacklistService(
             }
         }
 
-    private fun logTokenProcessingError(exception: Throwable, token: String, operation: String): Boolean {
+    private fun logTokenProcessingError(
+        exception: Throwable,
+        token: String,
+        operation: String,
+    ): Boolean {
         logger.error(exception) { "토큰 $operation 중 오류 발생: ${tokenPreview(token)}" }
         return false
     }

@@ -7,5 +7,5 @@ data class UserTokenInfo(
     val id: Long,
     val email: String,
     val roles: Set<String> = emptySet(),
-    val additionalClaims: Map<String, Any> = emptyMap()
+    val additionalClaims: Map<String, Any> = emptyMap(),
 )

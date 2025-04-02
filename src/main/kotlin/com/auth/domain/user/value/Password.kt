@@ -9,14 +9,12 @@ import org.springframework.security.crypto.password.PasswordEncoder
 @Embeddable
 class Password private constructor(
     @Column(name = "password", nullable = false)
-    val hashedValue: String
+    val hashedValue: String,
 ) {
     /**
      * 비밀번호 검증
      */
-    fun matches(rawPassword: String): Boolean {
-        return PASSWORD_ENCODER.matches(rawPassword, hashedValue)
-    }
+    fun matches(rawPassword: String): Boolean = PASSWORD_ENCODER.matches(rawPassword, hashedValue)
 
     companion object {
         private val PASSWORD_ENCODER: PasswordEncoder = BCryptPasswordEncoder()
@@ -33,12 +31,8 @@ class Password private constructor(
         /**
          * 해시된 비밀번호로부터 생성 (마이그레이션 등 특수 경우용)
          */
-        fun fromHashed(hashedPassword: String): Password {
-            return Password(hashedPassword)
-        }
+        fun fromHashed(hashedPassword: String): Password = Password(hashedPassword)
     }
 
-    override fun toString(): String {
-        return "Password(hashedValue=********)"
-    }
-} 
+    override fun toString(): String = "Password(hashedValue=********)"
+}

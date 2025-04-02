@@ -5,11 +5,9 @@ import com.auth.domain.user.value.Email
 import com.auth.domain.user.value.UserStatus
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
-import java.util.Optional
 
 @Repository
 interface UserJpaRepository : JpaRepository<UserEntity, Long> {
-
     /**
      * 이메일로 사용자 찾기
      */
@@ -24,7 +22,7 @@ interface UserJpaRepository : JpaRepository<UserEntity, Long> {
      * 사용자 상태로 사용자 찾기
      */
     fun findAllByStatus(userStatus: UserStatus): List<UserEntity>
-    
+
     /**
      * 이메일 존재 여부 확인
      */
@@ -34,4 +32,4 @@ interface UserJpaRepository : JpaRepository<UserEntity, Long> {
      * 사용자 이름 존재 여부 확인
      */
     fun existsByUserName(userName: String): Boolean
-} 
+}

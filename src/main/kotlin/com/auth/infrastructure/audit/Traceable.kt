@@ -43,4 +43,4 @@ class Traceable {
     @LastModifiedBy
     @Column(name = "updated_by", nullable = true, length = 100)
     var updatedBy: String? = null
-} 
+}
