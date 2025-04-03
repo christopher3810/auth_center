@@ -15,7 +15,7 @@ import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import java.time.Instant
-import java.util.*
+import java.util.Date
 import javax.crypto.SecretKey
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.seconds

@@ -4,7 +4,7 @@ import com.auth.domain.role.entity.RoleEntity
 import com.auth.domain.role.repository.RoleRepository
 import com.auth.infrastructure.repository.domain.RoleJpaRepository
 import org.springframework.stereotype.Repository
-import java.util.*
+import java.util.Optional
 
 @Repository
 class RoleRepositoryImpl(

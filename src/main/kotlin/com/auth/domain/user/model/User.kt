@@ -1,6 +1,11 @@
 package com.auth.domain.user.model
 
-import com.auth.domain.user.event.*
+import com.auth.domain.user.event.UserCreatedEvent
+import com.auth.domain.user.event.UserEvent
+import com.auth.domain.user.event.UserLoggedInEvent
+import com.auth.domain.user.event.UserPasswordChangedEvent
+import com.auth.domain.user.event.UserRolesChangedEvent
+import com.auth.domain.user.event.UserStatusChangedEvent
 import com.auth.domain.user.value.Email
 import com.auth.domain.user.value.Password
 import com.auth.domain.user.value.UserStatus
