@@ -22,10 +22,10 @@ class UserDtoSpec :
 
         describe("사용자 DTO 변환은") {
             // 테스트 데이터 준비
-            val 현재시간 = LocalDateTime.now()
-            val 어제시간 = 현재시간.minusDays(1)
+            val nowDate = LocalDateTime.now()
+            val beforeDate = nowDate.minusDays(1)
 
-            val 테스트유저 =
+            val testUser =
                 User(
                     id = 1L,
                     username = "testuser",
@@ -35,12 +35,12 @@ class UserDtoSpec :
                     phoneNumber = "01012345678",
                     roles = setOf("ROLE_USER"),
                     status = UserStatus.ACTIVE,
-                    lastLoginAt = 현재시간,
-                    createdAt = 어제시간,
-                    updatedAt = 현재시간,
+                    lastLoginAt = nowDate,
+                    createdAt = beforeDate,
+                    updatedAt = nowDate,
                 )
 
-            val 테스트유저2 =
+            val secondTestUser =
                 User(
                     id = 2L,
                     username = "testuser2",
@@ -51,12 +51,12 @@ class UserDtoSpec :
                     roles = setOf("ROLE_USER", "ROLE_ADMIN"),
                     status = UserStatus.INACTIVE,
                     lastLoginAt = null,
-                    createdAt = 어제시간,
-                    updatedAt = 어제시간,
+                    createdAt = beforeDate,
+                    updatedAt = beforeDate,
                 )
 
             context("상세 정보 응답 DTO 변환 시") {
-                val sut = UserDetailResponse.from(테스트유저)
+                val sut = UserDetailResponse.from(testUser)
 
                 it("모든 필드가 올바르게 변환되어야 한다") {
                     sut.id shouldBe 1L
@@ -67,14 +67,14 @@ class UserDtoSpec :
                     sut.roles shouldContainExactly setOf("ROLE_USER")
                     sut.status shouldBe "ACTIVE"
                     sut.isActive shouldBe true
-                    sut.lastLoginAt shouldBe 현재시간
-                    sut.createdAt shouldBe 어제시간
-                    sut.updatedAt shouldBe 현재시간
+                    sut.lastLoginAt shouldBe nowDate
+                    sut.createdAt shouldBe beforeDate
+                    sut.updatedAt shouldBe nowDate
                 }
             }
 
             context("요약 정보 응답 DTO 변환 시") {
-                val sut = UserSummaryResponse.from(테스트유저)
+                val sut = UserSummaryResponse.from(testUser)
 
                 it("필요한 필드만 정확히 변환되어야 한다") {
                     sut.id shouldBe 1L
@@ -83,13 +83,13 @@ class UserDtoSpec :
                     sut.name shouldBe "테스트 사용자"
                     sut.status shouldBe "ACTIVE"
                     sut.isActive shouldBe true
-                    sut.lastLoginAt shouldBe 현재시간
+                    sut.lastLoginAt shouldBe nowDate
                 }
             }
 
             context("사용자 목록을 요약 DTO 목록으로 변환 시") {
-                val 사용자목록 = listOf(테스트유저, 테스트유저2)
-                val sut = UserSummaryResponse.from(사용자목록)
+                val userList = listOf(testUser, secondTestUser)
+                val sut = UserSummaryResponse.from(userList)
 
                 it("목록의 모든 사용자가 올바르게 변환되어야 한다") {
                     sut.size shouldBe 2
@@ -109,7 +109,7 @@ class UserDtoSpec :
             }
 
             context("프로필 정보 응답 DTO 변환 시") {
-                val sut = UserProfileResponse.from(테스트유저)
+                val sut = UserProfileResponse.from(testUser)
 
                 it("개인정보 관련 필드만 변환되어야 한다") {
                     sut.username shouldBe "testuser"
@@ -117,12 +117,12 @@ class UserDtoSpec :
                     sut.name shouldBe "테스트 사용자"
                     sut.phoneNumber shouldBe "01012345678"
                     sut.roles shouldContainExactly setOf("ROLE_USER")
-                    sut.lastLoginAt shouldBe 현재시간
+                    sut.lastLoginAt shouldBe nowDate
                 }
             }
 
             context("사용자 등록 결과 응답 DTO 변환 시") {
-                val sut = UserRegistrationResponse.from(테스트유저)
+                val sut = UserRegistrationResponse.from(testUser)
 
                 it("등록 관련 필드와 기본 메시지가 포함되어야 한다") {
                     sut.id shouldBe 1L
@@ -134,21 +134,21 @@ class UserDtoSpec :
 
             context("다양한 역할을 가진 사용자 변환 시") {
                 it("역할 목록이 정확히 변환되어야 한다") {
-                    val sut = UserDetailResponse.from(테스트유저2)
+                    val sut = UserDetailResponse.from(secondTestUser)
                     sut.roles shouldContainExactlyInAnyOrder setOf("ROLE_USER", "ROLE_ADMIN")
                 }
             }
 
             context("상태가 다른 사용자 변환 시") {
                 it("활성화 여부가 상태에 맞게 설정되어야 한다") {
-                    val 활성유저응답 = UserDetailResponse.from(테스트유저)
-                    val 비활성유저응답 = UserDetailResponse.from(테스트유저2)
+                    val activeUserResponse = UserDetailResponse.from(testUser)
+                    val deActiveUserResponse = UserDetailResponse.from(secondTestUser)
 
-                    활성유저응답.status shouldBe "ACTIVE"
-                    활성유저응답.isActive shouldBe true
+                    activeUserResponse.status shouldBe "ACTIVE"
+                    activeUserResponse.isActive shouldBe true
 
-                    비활성유저응답.status shouldBe "INACTIVE"
-                    비활성유저응답.isActive shouldBe false
+                    deActiveUserResponse.status shouldBe "INACTIVE"
+                    deActiveUserResponse.isActive shouldBe false
                 }
             }
         }
