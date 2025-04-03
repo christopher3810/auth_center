@@ -30,7 +30,7 @@ class JwtTokenAdaptor(
     TokenValidator {
     // 문자열을 바이트 배열로 변환하여 적절한 Key 인스턴스 생성
     private val key: SecretKey = Keys.hmacShaKeyFor(jwtConfig.secret.toByteArray(Charsets.UTF_8))
-    private val USE_ID: String = "userId"
+    private val useId: String = "userId"
 
     /**
      * 사용자 정보로부터 액세스 토큰 문자열 생성
@@ -50,7 +50,7 @@ class JwtTokenAdaptor(
                 permissions,
             )
         return tokenBuilder
-            .withClaim(USE_ID, userId)
+            .withClaim(useId, userId)
             .build()
     }
 
@@ -68,7 +68,7 @@ class JwtTokenAdaptor(
                 key,
             )
         return tokenBuilder
-            .withClaim(USE_ID, userId)
+            .withClaim(useId, userId)
             .build()
     }
 
@@ -88,7 +88,7 @@ class JwtTokenAdaptor(
                 purpose.value,
             )
         return tokenBuilder
-            .withClaim(USE_ID, userId)
+            .withClaim(useId, userId)
             .build()
     }
 
@@ -131,7 +131,7 @@ class JwtTokenAdaptor(
      * JWT 토큰에서 사용자 ID를 추출합니다.
      */
     override fun getUserId(token: String): Long? {
-        val userId = getClaims(token)[USE_ID] ?: return null
+        val userId = getClaims(token)[useId] ?: return null
         return when (userId) {
             is Number -> userId.toLong()
             is String -> userId.toLong()
