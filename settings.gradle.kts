@@ -24,9 +24,9 @@ gradleEnterprise {
 buildCache {
     local {
         directory = File(rootDir, "build-cache")
-        removeUnusedEntriesAfterDays = 30  // 30일 이상 사용하지 않은 캐시 항목 제거
+        removeUnusedEntriesAfterDays = 30 // 30일 이상 사용하지 않은 캐시 항목 제거
     }
 }
 
 // 루트 프로젝트 이름 정의 - 이 설정은 필수입니다
-rootProject.name = "auth_center" 
+rootProject.name = "auth_center"

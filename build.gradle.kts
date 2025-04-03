@@ -85,7 +85,7 @@ dependencies {
     testImplementation("org.testcontainers:testcontainers:1.20.6")
     testImplementation("org.testcontainers:junit-jupiter:1.20.6")
     testImplementation("org.testcontainers:postgresql:1.20.6")
-    
+
     // 추후 ksp annotation processor 필요시
     // ksp("com.example:processor:1.0.0")
 }
@@ -97,6 +97,11 @@ ktlint {
         reporter(ReporterType.PLAIN) // 콘솔에 단순 텍스트 출력
     }
 
+    additionalEditorconfig.set(
+        mapOf(
+            "max_line_length" to "150", // 최대 줄 길이를 150으로 설정
+        ),
+    )
     // 콘솔 출력을 활성화
     outputToConsole.set(true)
 }
@@ -112,19 +117,22 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
         freeCompilerArgs.add("-Xjsr305=strict")
         jvmTarget.set(JvmTarget.JVM_21)
     }
-    incremental = true  // 증분 컴파일 활성화 - 변경된 파일만 컴파일
-    outputs.cacheIf { true }  // 컴파일 결과 캐싱으로 빌드 성능 향상
+    incremental = true // 증분 컴파일 활성화 - 변경된 파일만 컴파일
+    outputs.cacheIf { true } // 컴파일 결과 캐싱으로 빌드 성능 향상
 }
 
 tasks.withType<Test> {
     useJUnitPlatform()
-    maxParallelForks = (Runtime.getRuntime().availableProcessors() / 2).coerceAtLeast(1)  // 병렬 테스트 실행
-    setForkEvery(500)  // 메모리 누수 방지를 위해 500개 테스트마다 새 JVM 프로세스 시작
-    reports.html.required = false  // HTML 리포트 활성화 여부
-    reports.junitXml.required = true  //XML 리포트 활성화 여부
+    maxParallelForks = (Runtime.getRuntime().availableProcessors() / 2).coerceAtLeast(1) // 병렬 테스트 실행
+    setForkEvery(500) // 메모리 누수 방지를 위해 500개 테스트마다 새 JVM 프로세스 시작
+    reports.html.required = false // HTML 리포트 활성화 여부
+    reports.junitXml.required = true // XML 리포트 활성화 여부
 
-    systemProperty("kotest.framework.classpath.scanning.autoscan", "true")  // 자동 스캔으로 확장 감지
-    systemProperty("kotest.framework.parallelism", (Runtime.getRuntime().availableProcessors() / 2).coerceAtLeast(1).toString())  // Kotest 내부 병렬 처리
+    systemProperty("kotest.framework.classpath.scanning.autoscan", "true") // 자동 스캔으로 확장 감지
+    systemProperty(
+        "kotest.framework.parallelism",
+        (Runtime.getRuntime().availableProcessors() / 2).coerceAtLeast(1).toString(),
+    )
 }
 
 if (!project.hasProperty("prod")) {
