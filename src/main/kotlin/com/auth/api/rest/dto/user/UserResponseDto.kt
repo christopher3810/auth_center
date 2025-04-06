@@ -2,6 +2,7 @@ package com.auth.api.rest.dto.user
 
 import com.auth.domain.user.model.User
 import com.fasterxml.jackson.annotation.JsonInclude
+import io.swagger.v3.oas.annotations.media.Schema
 import java.time.LocalDateTime
 
 /**
@@ -143,30 +144,44 @@ data class UserSummaryResponse(
 /**
  * 사용자 프로필 응답 DTO (개인정보 노출 최소화)
  */
+@Schema(
+    description = "사용자 프로필 정보 응답 객체",
+    title = "UserProfileResponse",
+)
 data class UserProfileResponse(
-    /**
-     * 사용자명 (로그인 아이디)
-     */
+    @Schema(
+        description = "사용자명 (로그인 아이디)",
+        example = "john_doe",
+    )
     val username: String,
-    /**
-     * 사용자 이메일
-     */
+    @Schema(
+        description = "사용자 이메일",
+        example = "john.doe@example.com",
+        format = "email",
+    )
     val email: String,
-    /**
-     * 사용자 이름
-     */
+    @Schema(
+        description = "사용자 이름",
+        example = "John Doe",
+    )
     val name: String,
-    /**
-     * 사용자 전화번호
-     */
+    @Schema(
+        description = "사용자 전화번호",
+        example = "01012345678",
+        nullable = true,
+    )
     val phoneNumber: String?,
-    /**
-     * 사용자 역할 목록
-     */
+    @Schema(
+        description = "사용자 역할 목록",
+        example = "[\"USER\", \"ADMIN\"]",
+    )
     val roles: Set<String>,
-    /**
-     * 마지막 로그인 일시
-     */
+    @Schema(
+        description = "마지막 로그인 일시",
+        example = "2023-05-15T14:30:15",
+        format = "date-time",
+        nullable = true,
+    )
     val lastLoginAt: LocalDateTime?,
 ) {
     companion object {
@@ -193,22 +208,31 @@ data class UserProfileResponse(
 /**
  * 사용자 등록 결과 응답 DTO
  */
+@Schema(
+    description = "회원가입 성공 응답 객체",
+    title = "UserRegistrationResponse",
+)
 data class UserRegistrationResponse(
-    /**
-     * 사용자 식별자
-     */
+    @Schema(
+        description = "사용자 식별자",
+        example = "123",
+    )
     val id: Long,
-    /**
-     * 사용자명 (로그인 아이디)
-     */
+    @Schema(
+        description = "사용자명 (로그인 아이디)",
+        example = "john_doe",
+    )
     val username: String,
-    /**
-     * 사용자 이메일
-     */
+    @Schema(
+        description = "사용자 이메일",
+        example = "john.doe@example.com",
+        format = "email",
+    )
     val email: String,
-    /**
-     * 메시지
-     */
+    @Schema(
+        description = "회원가입 완료 메시지",
+        example = "사용자 등록이 완료되었습니다. 이메일 인증을 통해 계정을 활성화해주세요.",
+    )
     val message: String = "사용자 등록이 완료되었습니다. 이메일 인증을 통해 계정을 활성화해주세요.",
 ) {
     companion object {
