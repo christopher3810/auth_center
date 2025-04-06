@@ -10,6 +10,39 @@ jwt:
   access-token-validity-in-seconds: 3600
   refresh-token-validity-in-seconds: 86400
 
+springdoc:
+  api-docs:
+    path: /api-docs # Swagger API 문서의 JSON 경로 (기본값: /v3/api-docs)
+    groups:
+      enabled: true # Group 활성화
+
+  swagger-ui:
+    path: /swagger-ui.html
+    disable-swagger-default-url: true # 기본 petstore URL 비활성화
+    display-request-duration: true # 요청 처리 시간 활성화
+    operations-sorter: method
+    tags-sorter: alpha
+    doc-expansion: none
+    filter: true # 검색 필터 활성화
+    deep-linking: true # URL에 태그와 작업 정보를 포함한 딥링크 활성화
+    syntax-highlight:
+      theme: monokai
+    try-it-out-enabled: true
+    default-models-expand-depth: -1 # (-1: 모델 섹션 숨김)
+    default-model-expand-depth: 2 # (2: 속성까지 표시)
+    urls-primary-name: "Latest Documentation" # 다중 문서 인터페이스의 기본 선택 문서 이름
+
+  default-consumes-media-type: application/json # Default json
+  default-produces-media-type: application/json
+
+  group-configs:
+    - group: user
+      display-name: "User APIs"
+      paths-to-match: /api/users/**
+    - group: admin
+      display-name: "Admin APIs"
+      paths-to-match: /api/admin/**
+
 logging:
   level:
     com.auth: DEBUG
