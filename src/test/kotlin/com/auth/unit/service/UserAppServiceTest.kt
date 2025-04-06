@@ -18,15 +18,13 @@ import io.mockk.slot
 import io.mockk.verify
 import java.time.LocalDateTime
 
-// 한글 테스트 시도
 class UserAppServiceTest :
     DescribeSpec({
 
-        isolationMode = IsolationMode.InstancePerLeaf
+        isolationMode = IsolationMode.InstancePerTest
 
-        // 테스트 대상 및 의존성 정의
         val userDomainService = mockk<UserDomainService>()
-        val sut = UserAccountAppService(userDomainService) // SUT (System Under Test)
+        val sut = UserAccountAppService(userDomainService)
 
         // 테스트 데이터 준비
         val testUser =

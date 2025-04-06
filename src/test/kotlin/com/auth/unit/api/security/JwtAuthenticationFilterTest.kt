@@ -4,6 +4,7 @@ import com.auth.api.security.JwtAuthenticationFilter
 import com.auth.api.security.SecurityUtils
 import com.auth.application.auth.dto.UserTokenInfo
 import com.auth.application.auth.service.TokenAppService
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.IsolationMode
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
@@ -32,17 +33,18 @@ class JwtAuthenticationFilterTest :
         val request = mockk<HttpServletRequest>()
         val response = mockk<HttpServletResponse>()
         val filterChain = mockk<FilterChain>(relaxUnitFun = true)
+        val emptyPermitAllPatterns = emptyList<String>()
 
         beforeTest {
-
             SecurityUtils.clearSecurityContext()
 
-            sut = JwtAuthenticationFilter(tokenAppService)
+            sut = JwtAuthenticationFilter(tokenAppService, emptyPermitAllPatterns)
 
             every { request.getAttribute(any()) } returns null
             every { request.removeAttribute(any()) } just runs
             every { request.getDispatcherType() } returns DispatcherType.REQUEST
             every { request.setAttribute(any(), any()) } just runs
+            every { request.requestURI } returns "/api/test"
         }
 
         describe("JWT 인증 필터는") {
@@ -162,16 +164,28 @@ class JwtAuthenticationFilterTest :
                     every { request.getHeader("Authorization") } returns "Bearer $token"
                     every { tokenAppService.validateToken(token) } throws RuntimeException("토큰 검증 실패")
 
-                    sut.doFilter(request, response, filterChain)
-                }
-
-                it("예외를 흡수하고 필터 체인을 계속 진행해야 한다") {
-                    verify(exactly = 1) { filterChain.doFilter(request, response) }
+                    shouldThrow<RuntimeException> {
+                        sut.doFilter(request, response, filterChain)
+                    }
                 }
 
                 it("인증 정보를 설정하지 않아야 한다") {
                     val authentication = SecurityContextHolder.getContext().authentication
                     authentication.shouldBe(null)
+                }
+            }
+
+            context("permitAll 패턴에 일치하는 경로에 대해서는") {
+                val permitAllFilter = JwtAuthenticationFilter(tokenAppService, listOf("/public/**"))
+
+                beforeTest {
+                    every { request.requestURI } returns "/public/api/endpoint"
+                }
+
+                it("필터 체인만 실행된다") {
+                    permitAllFilter.doFilter(request, response, filterChain)
+                    verify(exactly = 0) { tokenAppService.validateToken(any()) }
+                    verify(exactly = 1) { filterChain.doFilter(request, response) }
                 }
             }
         }
