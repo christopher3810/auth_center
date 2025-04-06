@@ -17,8 +17,6 @@ springdoc:
       enabled: true # Group 활성화
 
   swagger-ui:
-    path: /swagger-ui.html
-    disable-swagger-default-url: true # 기본 petstore URL 비활성화
     display-request-duration: true # 요청 처리 시간 활성화
     operations-sorter: method
     tags-sorter: alpha

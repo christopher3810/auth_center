@@ -1,6 +1,4 @@
 spring:
-  config:
-    import: "classpath:application.yml"
   datasource:
     url: jdbc:postgresql://localhost:5432/tars_admin
     username: tars_admin
@@ -24,6 +22,9 @@ springdoc:
 
 security:
   permit-all-patterns:
-    - "/api/**"
-    - "/swagger-ui/**"
-    - "/v3/api-docs/**"
+    - "/swagger-ui/**"     # 전체 swagger-ui 경로
+    - "/swagger-ui.html"   # 메인 swagger 페이지
+    - "/v3/api-docs/**"    # OpenAPI 문서
+    - "/swagger-resources/**"
+    - "/webjars/**"
+    - "/favicon.ico"
