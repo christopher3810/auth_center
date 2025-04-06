@@ -12,7 +12,7 @@ jwt:
 
 springdoc:
   api-docs:
-    path: /api-docs # Swagger API 문서의 JSON 경로 (기본값: /v3/api-docs)
+    path: /v3/api-docs
     groups:
       enabled: true # Group 활성화
 
@@ -28,7 +28,7 @@ springdoc:
     syntax-highlight:
       theme: monokai
     try-it-out-enabled: true
-    default-models-expand-depth: -1 # (-1: 모델 섹션 숨김)
+    default-models-expand-depth: 1
     default-model-expand-depth: 2 # (2: 속성까지 표시)
     urls-primary-name: "Latest Documentation" # 다중 문서 인터페이스의 기본 선택 문서 이름
 
@@ -43,9 +43,23 @@ springdoc:
       display-name: "Admin APIs"
       paths-to-match: /api/admin/**
 
+  mvc:
+    problemdetails:
+      enabled: true
+  
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+    date-format: "yyyy-MM-dd'T'HH:mm:ss"
+    default-property-inclusion: non_null
+
 logging:
   level:
+    root: INFO
     com.auth: DEBUG
     org.springframework.security: INFO
+    org.springframework.web: INFO
     org.hibernate.SQL: DEBUG
-    org.hibernate.type.descriptor.sql.BasicBinder: TRACE 
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+
+packages-to-scan: com.auth.api.rest 
