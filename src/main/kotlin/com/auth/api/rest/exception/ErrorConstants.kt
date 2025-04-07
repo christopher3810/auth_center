@@ -9,7 +9,7 @@ object ErrorConstants {
     const val PROBLEM_JSON_MEDIA_TYPE = MediaType.APPLICATION_PROBLEM_JSON_VALUE
 
     // 베이스 오류 URI
-    const val BASE_TYPE_URI = "https://api.example.com/errors"
+    const val BASE_TYPE_URI = "https://auth_center_sample_domain/errors"
 
     // 오류 유형 경로 (URI의 일부가 됨)
     private const val VALIDATION_TYPE_PATH = "validation"
