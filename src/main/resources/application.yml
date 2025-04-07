@@ -37,6 +37,9 @@ springdoc:
     - group: user
       display-name: "User APIs"
       paths-to-match: /api/users/**
+    - group: auth
+      display-name: "Auth APIs"
+      paths-to-match: /api/auth/**
     - group: admin
       display-name: "Admin APIs"
       paths-to-match: /api/admin/**
