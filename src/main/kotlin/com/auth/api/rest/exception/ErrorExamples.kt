@@ -16,23 +16,8 @@ object ErrorExamples {
       "title": "Bad Request",
       "status": 400,
       "detail": "입력값 검증에 실패했습니다.",
-      "instance": "/api/users/v1/register",
       "timestamp": $EXAMPLE_TIMESTAMP,
       "traceId": "$EXAMPLE_TRACE_ID",
-      "fieldErrors": [
-        {
-          "field": "username",
-          "message": "사용자명은 필수 입력값입니다."
-        },
-        {
-          "field": "email",
-          "message": "유효한 이메일 형식이 아닙니다."
-        },
-        {
-          "field": "password",
-          "message": "비밀번호는 8자 이상이어야 합니다."
-        }
-      ]
     }
     """
 
@@ -43,7 +28,6 @@ object ErrorExamples {
       "title": "Unauthorized",
       "status": 401,
       "detail": "인증에 실패했습니다.",
-      "instance": "/api/users/v1/info",
       "timestamp": $EXAMPLE_TIMESTAMP,
       "traceId": "$EXAMPLE_TRACE_ID"
     }
@@ -56,7 +40,6 @@ object ErrorExamples {
       "title": "Forbidden",
       "status": 403,
       "detail": "해당 리소스에 접근할 권한이 없습니다.",
-      "instance": "/api/admin/users",
       "timestamp": $EXAMPLE_TIMESTAMP,
       "traceId": "$EXAMPLE_TRACE_ID"
     }
@@ -69,7 +52,6 @@ object ErrorExamples {
       "title": "Not Found",
       "status": 404,
       "detail": "요청한 리소스를 찾을 수 없습니다.",
-      "instance": "/api/users/999",
       "timestamp": $EXAMPLE_TIMESTAMP,
       "traceId": "$EXAMPLE_TRACE_ID"
     }
@@ -82,7 +64,6 @@ object ErrorExamples {
       "title": "Internal Server Error",
       "status": 500,
       "detail": "서버 내부 오류가 발생했습니다.",
-      "instance": "/api/users/v1/register",
       "timestamp": $EXAMPLE_TIMESTAMP,
       "traceId": "$EXAMPLE_TRACE_ID"
     }
@@ -95,7 +76,6 @@ object ErrorExamples {
       "title": "Not Found",
       "status": 404,
       "detail": "요청한 사용자를 찾을 수 없습니다.",
-      "instance": "/api/users/v1/12345",
       "timestamp": $EXAMPLE_TIMESTAMP,
       "traceId": "$EXAMPLE_TRACE_ID"
     }
@@ -107,7 +87,17 @@ object ErrorExamples {
       "title": "Conflict",
       "status": 409,
       "detail": "이미 존재하는 사용자입니다.",
-      "instance": "/api/users/v1/register",
+      "timestamp": $EXAMPLE_TIMESTAMP,
+      "traceId": "$EXAMPLE_TRACE_ID"
+    }
+    """
+
+    const val EMAIL_ALREADY_EXISTS_EXAMPLE = """
+    {
+      "type": "https://api.example.com/errors/resource",
+      "title": "Conflict",
+      "status": 409,
+      "detail": "이미 존재하는 사용자입니다.",
       "timestamp": $EXAMPLE_TIMESTAMP,
       "traceId": "$EXAMPLE_TRACE_ID"
     }
@@ -120,7 +110,6 @@ object ErrorExamples {
       "title": "Unauthorized",
       "status": 401,
       "detail": "유효하지 않은 Authorization 헤더입니다.",
-      "instance": "/api/users/v1/info",
       "timestamp": $EXAMPLE_TIMESTAMP,
       "traceId": "$EXAMPLE_TRACE_ID"
     }
@@ -132,7 +121,6 @@ object ErrorExamples {
       "title": "Unauthorized",
       "status": 401,
       "detail": "아이디 또는 비밀번호가 맞지 않습니다.",
-      "instance": "/api/auth/v1/login",
       "timestamp": $EXAMPLE_TIMESTAMP,
       "traceId": "$EXAMPLE_TRACE_ID"
     }
@@ -144,7 +132,6 @@ object ErrorExamples {
       "title": "Unauthorized",
       "status": 401,
       "detail": "유효하지 않은 토큰입니다.",
-      "instance": "/api/users/v1/info",
       "timestamp": $EXAMPLE_TIMESTAMP,
       "traceId": "$EXAMPLE_TRACE_ID"
     }
