@@ -34,18 +34,14 @@ class SecurityConfig(
     fun passwordEncoder(): PasswordEncoder = BCryptPasswordEncoder()
 
     @Bean
-    fun securityFilterChain(
-        http: HttpSecurity,
-    ): SecurityFilterChain {
-
+    fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
         val permitAllPatterns = securityProperties.permitAllPatterns
         http
             .csrf { csrfConfigurer: CsrfConfigurer<HttpSecurity> -> csrfConfigurer.disable() }
             .cors { cors -> cors.configurationSource(corsConfigurationSource()) }
             .sessionManagement { sessionConfigurer: SessionManagementConfigurer<HttpSecurity> ->
                 sessionConfigurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-            }
-            .exceptionHandling { exceptions ->
+            }.exceptionHandling { exceptions ->
                 exceptions
                     .authenticationEntryPoint(securityAuthExceptionHandler)
                     .accessDeniedHandler(securityAuthExceptionHandler)
