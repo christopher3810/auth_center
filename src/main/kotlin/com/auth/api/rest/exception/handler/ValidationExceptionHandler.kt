@@ -2,12 +2,7 @@ package com.auth.api.rest.exception.handler
 
 import com.auth.api.rest.exception.ErrorConstants
 import com.auth.api.rest.exception.ErrorDetail
-import com.auth.api.rest.exception.ErrorExamples
 import com.auth.api.rest.exception.ErrorResponseFactory
-import io.swagger.v3.oas.annotations.media.Content
-import io.swagger.v3.oas.annotations.media.ExampleObject
-import io.swagger.v3.oas.annotations.media.Schema
-import io.swagger.v3.oas.annotations.responses.ApiResponse
 import org.springframework.core.Ordered
 import org.springframework.core.annotation.Order
 import org.springframework.http.ResponseEntity
@@ -28,23 +23,6 @@ class ValidationExceptionHandler {
      * Request Body의 유효성 검증 실패 시 발생
      */
     @ExceptionHandler(MethodArgumentNotValidException::class)
-    @ApiResponse(
-        responseCode = "400",
-        description = "유효성 검증 실패",
-        content = [
-            Content(
-                mediaType = ErrorConstants.PROBLEM_JSON_MEDIA_TYPE,
-                schema = Schema(implementation = ErrorDetail::class),
-                examples = [
-                    ExampleObject(
-                        name = "validation-error",
-                        summary = "요청 데이터 유효성 검증 실패",
-                        value = ErrorExamples.VALIDATION_ERROR_EXAMPLE,
-                    ),
-                ],
-            ),
-        ],
-    )
     fun handleValidationExceptions(
         ex: MethodArgumentNotValidException,
         request: WebRequest,

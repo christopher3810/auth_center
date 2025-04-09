@@ -2,12 +2,7 @@ package com.auth.api.rest.exception.handler
 
 import com.auth.api.rest.exception.ErrorConstants
 import com.auth.api.rest.exception.ErrorDetail
-import com.auth.api.rest.exception.ErrorExamples
 import com.auth.api.rest.exception.ErrorResponseFactory
-import io.swagger.v3.oas.annotations.media.Content
-import io.swagger.v3.oas.annotations.media.ExampleObject
-import io.swagger.v3.oas.annotations.media.Schema
-import io.swagger.v3.oas.annotations.responses.ApiResponse
 import org.slf4j.LoggerFactory
 import org.springframework.core.annotation.Order
 import org.springframework.http.ResponseEntity
@@ -27,23 +22,6 @@ class FallbackExceptionHandler {
      * 처리되지 않은 모든 예외를 처리하는 핸들러
      */
     @ExceptionHandler(Exception::class)
-    @ApiResponse(
-        responseCode = "500",
-        description = "서버 내부 오류",
-        content = [
-            Content(
-                mediaType = ErrorConstants.PROBLEM_JSON_MEDIA_TYPE,
-                schema = Schema(implementation = ErrorDetail::class),
-                examples = [
-                    ExampleObject(
-                        name = "server-error",
-                        summary = "예상치 못한 서버 내부 오류",
-                        value = ErrorExamples.SERVER_ERROR_EXAMPLE,
-                    ),
-                ],
-            ),
-        ],
-    )
     fun handleAllUncaughtException(
         ex: Exception,
         request: WebRequest,
