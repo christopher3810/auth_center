@@ -76,20 +76,17 @@ class ErrorDetail(
         val message: String,
     )
 
-    fun addFieldErrors(errors: Map<String, String>): ErrorDetail {
+    fun withFieldErrors(errors: Map<String, String>): ErrorDetail {
         this.setProperty("fieldErrors", errors)
         return this
     }
 
-    fun addFieldErrorList(errors: List<FieldErrorDetail>): ErrorDetail {
+    fun withFieldErrorList(errors: List<FieldErrorDetail>): ErrorDetail {
         this.setProperty("fieldErrors", errors)
         return this
     }
 
-    /**
-     * 오류 발생 경로를 설정
-     */
-    fun setPath(path: String): ErrorDetail {
+    fun withPath(path: String): ErrorDetail {
         this.instance = URI.create(path)
         return this
     }
@@ -103,19 +100,19 @@ class ErrorDetail(
             detail: String,
             path: String? = null,
         ): ErrorDetail {
-            val errorDetail =
+            fun createErrorDetail(statusParam: HttpStatus): ErrorDetail =
                 ErrorDetail(
-                    status = status.value(),
+                    status = statusParam.value(),
                     detail = detail,
-                    title = status.reasonPhrase,
+                    title = statusParam.reasonPhrase,
                 )
 
-            // 오류 유형에 따른 type URI 설정
+            val errorDetail = createErrorDetail(status)
+
             errorDetail.type = ErrorConstants.getTypeURIForStatus(status)
 
-            // 경로 설정 (있는 경우)
-            if (path != null) {
-                errorDetail.setPath(path)
+            path?.let { pathValue ->
+                errorDetail.instance = URI.create(pathValue)
             }
 
             return errorDetail
@@ -127,8 +124,8 @@ class ErrorDetail(
             fieldErrors: Map<String, String>,
             path: String? = null,
         ): ErrorDetail {
-            val errorDetail = forStatus(status, detail, path)
-            return errorDetail.addFieldErrors(fieldErrors)
+            val error = forStatus(status, detail, path)
+            return error.withFieldErrors(fieldErrors)
         }
 
         fun forValidationError(
@@ -137,8 +134,8 @@ class ErrorDetail(
             fieldErrors: List<FieldErrorDetail>,
             path: String? = null,
         ): ErrorDetail {
-            val errorDetail = forStatus(status, detail, path)
-            return errorDetail.addFieldErrorList(fieldErrors)
+            val error = forStatus(status, detail, path)
+            return error.withFieldErrorList(fieldErrors)
         }
     }
 }
