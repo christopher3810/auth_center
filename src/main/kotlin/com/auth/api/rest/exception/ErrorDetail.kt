@@ -27,13 +27,13 @@ class ErrorDetail(
         example = "https://api.example.com/errors/validation",
         format = "uri",
     )
-    type: String = "",
+    type: String? = null,
     @Schema(
         description = "오류 발생 위치",
         example = "/api/users/v1/register",
         format = "uri",
     )
-    instance: String = "",
+    instance: String? = null,
     @Schema(
         description = "오류 발생 시간",
         example = "1715117415000",
@@ -53,89 +53,55 @@ class ErrorDetail(
 ) : ProblemDetail(status) {
     init {
         this.detail = detail
-        if (type.isNotEmpty()) this.type = URI.create(type)
-        if (instance.isNotEmpty()) this.instance = URI.create(instance)
-        if (title.isNotEmpty()) this.title = title
-        this.setProperty("timestamp", timestamp)
-        this.setProperty("traceId", traceId)
+        type?.takeIf { it.isNotEmpty() }?.let { this.type = URI(it) }
+        instance?.takeIf { it.isNotEmpty() }?.let { this.instance = URI(it) }
+        title.takeIf { it.isNotEmpty() }?.let { this.title = it }
+
+        setProperty("timestamp", timestamp)
+        setProperty("traceId", traceId)
     }
 
-    @Schema(
-        description = "필드 오류 상세 정보",
-    )
+    @Schema(description = "필드 오류 상세 정보")
     data class FieldErrorDetail(
-        @Schema(
-            description = "오류가 발생한 필드 이름",
-            example = "email",
-        )
+        @Schema(description = "오류가 발생한 필드 이름", example = "email")
         val field: String,
-        @Schema(
-            description = "오류 메시지",
-            example = "유효한 이메일 형식이 아닙니다.",
-        )
+        @Schema(description = "오류 메시지", example = "유효한 이메일 형식이 아닙니다.")
         val message: String,
     )
 
-    fun withFieldErrors(errors: Map<String, String>): ErrorDetail {
-        this.setProperty("fieldErrors", errors)
+    /** Map<String,String> 또는 List<FieldErrorDetail> 모두 허용 */
+    fun addFieldErrors(errors: Any): ErrorDetail {
+        setProperty("fieldErrors", errors)
         return this
     }
 
-    fun withFieldErrorList(errors: List<FieldErrorDetail>): ErrorDetail {
-        this.setProperty("fieldErrors", errors)
-        return this
-    }
-
-    fun withPath(path: String): ErrorDetail {
-        this.instance = URI.create(path)
+    fun setPath(path: String): ErrorDetail {
+        instance = URI.create(path)
         return this
     }
 
     companion object {
-        /**
-         * 기본 오류 응답 생성
-         */
-        fun forStatus(
+        /** 일반 오류 */
+        fun of(
             status: HttpStatus,
             detail: String,
             path: String? = null,
-        ): ErrorDetail {
-            fun createErrorDetail(statusParam: HttpStatus): ErrorDetail =
-                ErrorDetail(
-                    status = statusParam.value(),
-                    detail = detail,
-                    title = statusParam.reasonPhrase,
-                )
+        ): ErrorDetail =
+            ErrorDetail(
+                status = status.value(),
+                detail = detail,
+                type = ErrorConstants.getTypeURIForStatus(status).toString(),
+                instance = path,
+                title = status.reasonPhrase,
+            )
 
-            val errorDetail = createErrorDetail(status)
-
-            errorDetail.type = ErrorConstants.getTypeURIForStatus(status)
-
-            path?.let { pathValue ->
-                errorDetail.instance = URI.create(pathValue)
-            }
-
-            return errorDetail
-        }
-
-        fun forValidationError(
+        /** 입력값 검증 오류 */
+        fun validation(
             status: HttpStatus,
             detail: String,
-            fieldErrors: Map<String, String>,
+            fieldErrors: Any, // Map<String,String> | List<FieldErrorDetail>
             path: String? = null,
-        ): ErrorDetail {
-            val error = forStatus(status, detail, path)
-            return error.withFieldErrors(fieldErrors)
-        }
-
-        fun forValidationError(
-            status: HttpStatus,
-            detail: String,
-            fieldErrors: List<FieldErrorDetail>,
-            path: String? = null,
-        ): ErrorDetail {
-            val error = forStatus(status, detail, path)
-            return error.withFieldErrorList(fieldErrors)
-        }
+        ): ErrorDetail =
+            of(status, detail, path).addFieldErrors(fieldErrors)
     }
 }

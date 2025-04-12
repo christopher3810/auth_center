@@ -30,9 +30,9 @@ class AuthExceptionHandler {
     ): ResponseEntity<ErrorDetail> =
         ErrorResponseFactory.createErrorResponse(
             status = ErrorConstants.UNAUTHORIZED_STATUS,
-            ex = ex,
+            exception = ex,
             request = request,
-            defaultMessage = ErrorConstants.INVALID_AUTH_HEADER_MESSAGE,
+            userMessage = ErrorConstants.INVALID_AUTH_HEADER_MESSAGE,
             logMessage = ErrorConstants.AUTH_HEADER_ERROR_LOG,
         )
 
@@ -46,9 +46,9 @@ class AuthExceptionHandler {
     ): ResponseEntity<ErrorDetail> =
         ErrorResponseFactory.createErrorResponse(
             status = ErrorConstants.UNAUTHORIZED_STATUS,
-            ex = ex,
+            exception = ex,
             request = request,
-            defaultMessage = ErrorConstants.INVALID_CREDENTIALS_MESSAGE,
+            userMessage = ErrorConstants.INVALID_CREDENTIALS_MESSAGE,
             logMessage = ErrorConstants.INVALID_CREDENTIALS_LOG,
         )
 
@@ -62,9 +62,9 @@ class AuthExceptionHandler {
     ): ResponseEntity<ErrorDetail> =
         ErrorResponseFactory.createErrorResponse(
             status = ErrorConstants.UNAUTHORIZED_STATUS,
-            ex = ex,
+            exception = ex,
             request = request,
-            defaultMessage = ErrorConstants.INVALID_TOKEN_MESSAGE,
+            userMessage = ErrorConstants.INVALID_TOKEN_MESSAGE,
             logMessage = ErrorConstants.INVALID_TOKEN_LOG,
         )
 
@@ -78,9 +78,9 @@ class AuthExceptionHandler {
     ): ResponseEntity<ErrorDetail> =
         ErrorResponseFactory.createErrorResponse(
             status = ErrorConstants.UNAUTHORIZED_STATUS,
-            ex = ex,
+            exception = ex,
             request = request,
-            defaultMessage = ErrorConstants.TOKEN_EXTRACTION_ERROR_MESSAGE,
+            userMessage = ErrorConstants.TOKEN_EXTRACTION_ERROR_MESSAGE,
             logMessage = ErrorConstants.TOKEN_PARSING_ERROR_LOG,
         )
 }

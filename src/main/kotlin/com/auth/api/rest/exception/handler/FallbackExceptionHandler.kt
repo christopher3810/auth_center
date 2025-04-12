@@ -28,7 +28,7 @@ class FallbackExceptionHandler {
     ): ResponseEntity<ErrorDetail> {
         logger.error("Unhandled exception encountered", ex)
         return ErrorResponseFactory.createServerErrorResponse(
-            ex = ex,
+            exception = ex,
             request = request,
             logMessage = ErrorConstants.INTERNAL_SERVER_ERROR_LOG,
         )

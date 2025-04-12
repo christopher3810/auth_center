@@ -29,9 +29,9 @@ class UserExceptionHandler {
     ): ResponseEntity<ErrorDetail> =
         ErrorResponseFactory.createErrorResponse(
             status = ErrorConstants.NOT_FOUND_STATUS,
-            ex = ex,
+            exception = ex,
             request = request,
-            defaultMessage = ErrorConstants.USER_NOT_FOUND_MESSAGE,
+            userMessage = ErrorConstants.USER_NOT_FOUND_MESSAGE,
             logMessage = ErrorConstants.USER_NOT_FOUND_LOG,
         )
 
@@ -45,9 +45,9 @@ class UserExceptionHandler {
     ): ResponseEntity<ErrorDetail> =
         ErrorResponseFactory.createErrorResponse(
             status = ErrorConstants.CONFLICT_STATUS,
-            ex = ex,
+            exception = ex,
             request = request,
-            defaultMessage = ErrorConstants.USER_ALREADY_EXISTS_MESSAGE,
+            userMessage = ErrorConstants.USER_ALREADY_EXISTS_MESSAGE,
             logMessage = ErrorConstants.USER_ALREADY_EXISTS_LOG,
         )
 
@@ -61,9 +61,9 @@ class UserExceptionHandler {
     ): ResponseEntity<ErrorDetail> =
         ErrorResponseFactory.createErrorResponse(
             status = ErrorConstants.NOT_FOUND_STATUS,
-            ex = ex,
+            exception = ex,
             request = request,
-            defaultMessage = ErrorConstants.ELEMENT_NOT_FOUND_MESSAGE,
+            userMessage = ErrorConstants.ELEMENT_NOT_FOUND_MESSAGE,
             logMessage = ErrorConstants.ELEMENT_NOT_FOUND_LOG,
         )
 }
