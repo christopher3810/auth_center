@@ -2,6 +2,13 @@
 spring:
   config:
     import: "classpath:application.yml"
+  redis:
+    enabled: true
+    host: redis-prod # 운영용 Redis 서버 호스트
+    port: 6379
+    password: admin2447
+    timeout: 3000
+    database: 0
   datasource:
     url: jdbc:postgresql://localhost:5433/tars_admin
     username: tars_admin

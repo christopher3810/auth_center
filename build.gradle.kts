@@ -81,6 +81,10 @@ dependencies {
     // AOP 관련 의존성
     implementation("org.springframework.boot:spring-boot-starter-aop")
 
+    // Redis 관련 의존성
+    implementation("org.springframework.boot:spring-boot-starter-data-redis")
+    implementation("io.lettuce:lettuce-core")
+
     // Testcontainers
     testImplementation("org.testcontainers:testcontainers:1.20.6")
     testImplementation("org.testcontainers:junit-jupiter:1.20.6")
