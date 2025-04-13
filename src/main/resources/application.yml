@@ -4,13 +4,6 @@ server:
 spring:
   application:
     name: auth-center
-  redis:
-    enabled: true
-    host: localhost
-    port: 6379
-    password: admin2447
-    timeout: 2000
-    database: 0
       
 jwt:
   secret: ${JWT_SECRET:your_jwt_secret_key_here_should_be_at_least_32_characters_long}
