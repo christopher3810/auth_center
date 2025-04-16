@@ -4,12 +4,28 @@ server:
 spring:
   application:
     name: auth-center
-      
+
 jwt:
   secret: ${JWT_SECRET:your_jwt_secret_key_here_should_be_at_least_32_characters_long}
   access-token-validity-in-seconds: 3600
   refresh-token-validity-in-seconds: 86400
 
+# 캐시 설정
+app:
+  cache:
+    enabled: true
+    ttl: PT30M # ISO-8601 기간 표기법: 30분
+    token:
+      access-token: PT1H # 1시간
+      refresh-token: P14D # 14일
+      blacklist: P7D # 7일
+    user:
+      profile: PT30M # 30분
+      permissions: PT10M # 10분
+    rate-limiting:
+      login-attempts: PT30M # 30분
+      api-requests: PT1M # 1분
+      
 springdoc:
   api-docs:
     path: /v3/api-docs
