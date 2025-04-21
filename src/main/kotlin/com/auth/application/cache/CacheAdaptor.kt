@@ -34,5 +34,8 @@ interface CacheAdaptor {
      * @param ttl 만료 시간
      * @return 설정 성공 여부
      */
-    fun setExpire(key: String, ttl: Duration): Boolean
+    fun setExpire(
+        key: String,
+        ttl: Duration,
+    ): Boolean
 } 
