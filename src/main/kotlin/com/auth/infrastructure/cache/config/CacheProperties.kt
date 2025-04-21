@@ -22,31 +22,14 @@ data class CacheProperties(
      */
     val tokenBlacklistTtl: Duration = Duration.ofDays(7),
     /**
-     * 사용자 관련 캐시 설정
-     */
-    val user: UserCacheProperties = UserCacheProperties(),
-    /**
      * 속도 제한 관련 캐시 설정
      */
     val rateLimiting: RateLimitingCacheProperties = RateLimitingCacheProperties(),
 )
 
-/**
- * 사용자 관련 캐시 설정
- */
-data class UserCacheProperties(
-    /**
-     * 사용자 프로필 캐시 만료 시간
-     */
-    val profile: Duration = Duration.ofHours(1),
-    /**
-     * 사용자 권한 캐시 만료 시간
-     */
-    val permissions: Duration = Duration.ofHours(1),
-)
 
 /**
- * 속도 제한 관련 캐시 설정
+ * 속도 제한 관련 캐시 설정 (사용여부는 고민중)
  */
 data class RateLimitingCacheProperties(
     /**
