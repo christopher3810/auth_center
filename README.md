@@ -4,5 +4,11 @@
 auth_center
 
 
-### todo
-lib 이 api-gateway 갔다가 결국 여기까지 분리되서 로직 짬뽕임, DDD 반영 and 의존성 방향 몇몇 구간 재설정
+## 배포시 챙겨야 할것
+
+```console
+-Dspring.profiles.active=prod
+```
+
+프로파일 셋업할것.
+
